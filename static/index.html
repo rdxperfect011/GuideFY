@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Career Guidance System</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="container">
+  <h1>Career Guidance System</h1>
+  <form id="career-form">
+    <label>Name<br><input type="text" id="name" required></label>
+    <label>Email (optional)<br><input type="email" id="email"></label>
+    <label>Interests (comma separated)<br><textarea id="interests" required></textarea></label>
+    <label>Strengths / Skills<br><textarea id="strengths"></textarea></label>
+    <label>Preferred Subjects<br><input type="text" id="preferred_subjects"></label>
+    <label>Career Goal<br><input type="text" id="career_goal"></label>
+    <button type="submit">Get Recommendations</button>
+  </form>
+
+  <section id="result" class="hidden">
+    <h2>Recommendations</h2>
+    <pre id="rec-text">Waiting for suggestions...</pre>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
