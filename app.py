@@ -41,21 +41,35 @@ except Exception as e:
 
 # Normalize Gemini response 
 def normalize_output(raw):
-    """Ensures Gemini output uses consistent keys for frontend."""
-    def get(v, *keys): return next((v.get(k) for k in keys if v.get(k)), "N/A")
+    """Ensures Gemini output uses consistent keys and fills missing fields cleanly."""
+    def get(v, *keys):
+        for k in keys:
+            if isinstance(v, dict) and v.get(k):
+                return v[k]
+        return None
+
+    def clean_text(text):
+        return text.strip().capitalize() if isinstance(text, str) and text.strip() else "Not specified"
 
     return {
         "careers": [
-            {"name": get(c, "name", "title"), "justification": c.get("justification", "No details")}
-            for c in raw.get("careers", [])
+            {
+                "name": clean_text(get(c, "name", "title")),
+                "justification": clean_text(c.get("justification"))
+            } for c in raw.get("careers", [])
         ],
         "courses": [
-            {"name": get(c, "name", "title"), "description": c.get("description", "No details")}
-            for c in raw.get("courses", [])
+            {
+                "name": clean_text(get(c, "name", "title")),
+                "description": clean_text(c.get("description"))
+            } for c in raw.get("courses", [])
         ],
         "next_steps": [
-            {"action": get(s, "action", "step"), "details": s.get("details", "")}
-            if isinstance(s, dict) else {"action": s, "details": ""}
+            {
+                "action": clean_text(get(s, "action", "step")),
+                "details": clean_text(s.get("details"))
+            } if isinstance(s, dict)
+            else {"action": clean_text(s), "details": ""}
             for s in raw.get("next_steps", [])
         ]
     }
@@ -71,13 +85,16 @@ def career():
     name = data.get('name', 'Student')
     email = data.get('email', '')
     prompt = (
-        f"You are a career guidance expert. A student named {name} provided:\n"
-        f"Interests: {data.get('interests')}\nStrengths: {data.get('strengths')}\n"
-        f"Subjects: {data.get('preferred_subjects')}\nCareer goal: {data.get('career_goal')}\n\n"
-        "Suggest 3 career paths (with justification), 3–5 recommended courses, and 3 next steps.\n"
-        "Make suggestions specific and actionable.\n"
-        "Return output as pure JSON with keys: careers, courses, next_steps."
-    )
+    f"You are a career guidance expert. A student named {name} provided:\n"
+    f"Interests: {data.get('interests')}\nStrengths: {data.get('strengths')}\n"
+    f"Subjects: {data.get('preferred_subjects')}\nCareer goal: {data.get('career_goal')}\n\n"
+    "Suggest 3 career paths (with justification), 3–5 recommended courses, and 3 next steps.\n"
+    "Each career must have keys: 'name' and 'justification'.\n"
+    "Each course must have keys: 'name' and 'description'.\n"
+    "Each next step must have keys: 'action' and 'details'.\n"
+    "Return output as pure JSON with keys: careers, courses, next_steps — no markdown, no explanations.\n"
+    "If any field has no value, include it as an empty string rather than omitting it."
+)
 
     try:
         model = genai.GenerativeModel("models/gemini-2.5-pro")
