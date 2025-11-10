@@ -1,67 +1,47 @@
-const form = document.getElementById('career-form');
-const resultSection = document.getElementById('result');
-const recText = document.getElementById('rec-text');
+const form = document.getElementById("career-form");
+const result = document.getElementById("result");
+const recText = document.getElementById("rec-text");
 
-// Display recommendation neatly
-function displayRecommendation(data) {
-  recText.innerHTML = '';
-
-  if (!data || !data.careers || !data.courses || !data.next_steps) {
-    recText.textContent = 'Sorry, recommendation format is invalid.';
+// Show recommendation results
+function showRecommendation({ careers, courses, next_steps }) {
+  if (!careers || !courses || !next_steps) {
+    recText.textContent = "⚠️ Invalid response format.";
     return;
   }
 
-  const careersHtml = data.careers.map(c => `
-    <li><strong>${c.name}</strong>: ${c.justification}</li>
-  `).join('');
-
-  const coursesHtml = data.courses.map(c => `
-    <li><strong>${c.name}</strong>: ${c.description}</li>
-  `).join('');
-
-  const stepsHtml = data.next_steps.map(s => `
-    <li><strong>${s.action}</strong>: ${s.details}</li>
-  `).join('');
+  const toList = (items, key1, key2) =>
+    items.map(i => `<li><strong>${i[key1]}</strong>: ${i[key2]}</li>`).join("");
 
   recText.innerHTML = `
-    <h3>🚀 Recommended Careers</h3>
-    <ul>${careersHtml}</ul>
-    <h3>📚 Suggested Courses</h3>
-    <ul>${coursesHtml}</ul>
-    <h3>👣 Your Next Steps</h3>
-    <ul>${stepsHtml}</ul>
+    <h3>🚀 Careers</h3><ul>${toList(careers, "name", "justification")}</ul>
+    <h3>📚 Courses</h3><ul>${toList(courses, "name", "description")}</ul>
+    <h3>👣 Next Steps</h3><ul>${toList(next_steps, "action", "details")}</ul>
   `;
 }
 
-// Form submit
-form.addEventListener('submit', async (e) => {
+// Handle form submission
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const payload = {
-    name: document.getElementById('name').value.trim(),
-    email: document.getElementById('email').value.trim(),
-    interests: document.getElementById('interests').value.trim(),
-    strengths: document.getElementById('strengths').value.trim(),
-    preferred_subjects: document.getElementById('preferred_subjects').value.trim(),
-    career_goal: document.getElementById('career_goal').value.trim(),
-  };
 
-  recText.innerHTML = '<p>Thinking...</p>';
-  resultSection.classList.remove('hidden');
+  const payload = ["name", "email", "interests", "strengths", "preferred_subjects", "career_goal"]
+    .reduce((obj, id) => ({ ...obj, [id]: document.getElementById(id).value.trim() }), {});
+
+  recText.innerHTML = "<p>⏳ Thinking...</p>";
+  result.classList.remove("hidden");
 
   try {
-    const res = await fetch('/career', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+    const res = await fetch("/career", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
-    if (!res.ok) throw new Error(`Server responded with status: ${res.status}`);
+    if (!res.ok) throw new Error(`Server error: ${res.status}`);
 
     const data = await res.json();
-    if (data.error) recText.textContent = 'Error: ' + data.error;
-    else displayRecommendation(data.recommendation);
+    data.error ? recText.textContent = `❌ ${data.error}` : showRecommendation(data.recommendation);
 
   } catch (err) {
-    recText.textContent = 'Request failed: ' + err.message;
+    recText.textContent = `⚠️ Request failed: ${err.message}`;
   }
 });
