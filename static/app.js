@@ -1,6 +1,3 @@
-// =====================================================
-// ELEMENT REFERENCES
-// =====================================================
 
 const form = document.getElementById("career-form");
 const result = document.getElementById("result");

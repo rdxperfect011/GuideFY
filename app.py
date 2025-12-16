@@ -5,10 +5,7 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 import requests
 
-# =====================================================
 # ENVIRONMENT & AI CONFIGURATION
-# =====================================================
-
 # Load variables from .env file
 load_dotenv()
 
@@ -30,9 +27,8 @@ if GEMINI_API_KEY:
 # Initialize Flask app
 app = Flask(__name__, static_folder="static", static_url_path="")
 
-# =====================================================
+
 # UPSKILL DATABASE (STATIC FALLBACK CONTENT)
-# =====================================================
 
 # This database is used even when AI fails
 # It ensures the system always returns useful output
@@ -141,7 +137,7 @@ UPSKILL_DB = {
             },
             {
                 "name": "Udemy",
-                "url": "https://www.udemy.com/topic/programming/",
+                "url": "https://www.udemy.com/topic/generative-ai/",
                 "details": "Skill-based programming courses.",
                 "best_for": "Hands-on development",
                 "duration": "Self-paced",
@@ -216,9 +212,9 @@ UPSKILL_DB = {
         ),
         "videos": [
             {
-                "platform": "freeCodeCamp",
-                "url": "https://www.youtube.com/watch?v=ZXsQAXx_ao0",
-                "thumbnail": "https://img.youtube.com/vi/ZXsQAXx_ao0/hqdefault.jpg",
+                "platform": "YouTube - Vishal Sharma",
+                "url": "https://youtu.be/NTxBP4bFrBA?si=Z-KQNt_1SbzBnSOn",
+                "thumbnail": "https://img.youtube.com/vi/NTxBP4bFrBA/maxresdefault.jpg",
                 "explanation": "Essential professional skills overview."
             },
             {
@@ -228,9 +224,9 @@ UPSKILL_DB = {
                 "explanation": "Career growth mindset."
             },
             {
-                "platform": "Simplilearn",
-                "url": "https://www.youtube.com/watch?v=8JJ101D3knE",
-                "thumbnail": "https://img.youtube.com/vi/8JJ101D3knE/hqdefault.jpg",
+                "platform": "YouTube - Skillopedia",
+                "url": "https://www.youtube.com/watch?v=4-R1EHKmano",
+                "thumbnail": "https://img.youtube.com/vi/4-R1EHKmano/maxresdefault.jpg",
                 "explanation": "Job-ready professional skills."
             }
         ],
@@ -245,18 +241,18 @@ UPSKILL_DB = {
                 "certificate": "Yes"
             },
             {
-                "name": "Google AI",
-                "url": "https://ai.google/education/",
-                "details": "Free AI and digital skills.",
-                "best_for": "AI fundamentals",
+                "name": "LinkedIn Learning",
+                "url": "https://www.linkedin.com/learning/",
+                "details": "Professional-focused courses",
+                "best_for": "Career and Soft Skills",
                 "duration": "Self-paced",
                 "learning_type": "Short modules",
                 "certificate": "Yes"
             },
             {
-                "name": "Kaggle",
-                "url": "https://www.kaggle.com/learn",
-                "details": "Hands-on learning using datasets.",
+                "name": "Brilliant",
+                "url": "https://www.brilliant.org/",
+                "details": "Interactive problem-solving in math, logic, science",
                 "best_for": "Practical learning",
                 "duration": "1–3 weeks",
                 "learning_type": "Hands-on practice",
@@ -266,9 +262,48 @@ UPSKILL_DB = {
     }
 }
 
-# =====================================================
+
 # HELPER FUNCTIONS
-# =====================================================
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+
+def fetch_youtube_videos(topic, max_results=3):
+    """
+    Fetches YouTube videos dynamically based on topic
+    """
+    if not YOUTUBE_API_KEY:
+        return []
+
+    url = "https://www.googleapis.com/youtube/v3/search"
+    params = {
+        "part": "snippet",
+        "q": topic,
+        "type": "video",
+        "maxResults": max_results,
+        "key": YOUTUBE_API_KEY,
+        "safeSearch": "strict"
+    }
+
+    try:
+        res = requests.get(url, params=params, timeout=5)
+        data = res.json()
+
+        videos = []
+        for item in data.get("items", []):
+            video_id = item["id"]["videoId"]
+            snippet = item["snippet"]
+
+            videos.append({
+                "platform": "YouTube",
+                "url": f"https://www.youtube.com/watch?v={video_id}",
+                "thumbnail": snippet["thumbnails"]["high"]["url"],
+                "explanation": snippet["title"]
+            })
+
+        return videos
+
+    except Exception as e:
+        print("YouTube API Error:", e)
+        return []
 
 def extract_json(text):
     """
@@ -304,13 +339,19 @@ def detect_field(text):
 
 
 def build_upskill(user_text):
-    """
-    Returns upskill block based on detected field.
-    Always safe due to generic fallback.
-    """
     field = detect_field(user_text)
-    return UPSKILL_DB.get(field, UPSKILL_DB["generic"])
 
+    upskill = UPSKILL_DB.get(field, UPSKILL_DB["generic"]).copy()
+
+    # 🔥 AUTO FETCH VIDEOS FROM YOUTUBE
+    dynamic_videos = fetch_youtube_videos(
+        topic=upskill["title"]
+    )
+
+    if dynamic_videos:
+        upskill["videos"] = dynamic_videos
+
+    return upskill
 
 def normalize_output(raw, user_text):
     """
@@ -378,10 +419,8 @@ def fallback_response(user_text):
         }
     }
 
-# =====================================================
-# ROUTES
-# =====================================================
 
+# ROUTES
 @app.route("/")
 def index():
     return send_from_directory("static", "index.html")
@@ -401,7 +440,7 @@ def career():
         prompt = f"""
 You are a backend API.
 Return ONLY raw JSON.
-
+Give output in at least 40-50 words per field.
 {{
   "careers":[{{"name":"","justification":""}}],
   "courses":[{{"name":"","description":""}}],
@@ -438,10 +477,8 @@ Career goal: {data.get('career_goal')}
         return jsonify({"recommendation": fb}), 200
 
 
-# =====================================================
-# APPLICATION ENTRY POINT
-# =====================================================
 
+# APPLICATION ENTRY POINT
 if __name__ == "__main__":
     print("🚀 Server running at http://127.0.0.1:5050")
     app.run(debug=True, port=5050)
