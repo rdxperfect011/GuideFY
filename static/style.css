@@ -1,6 +1,7 @@
-/* ======================================
-   ROOT VARIABLES
-====================================== */
+/* =====================================================
+   ROOT VARIABLES (THEME CONFIGURATION)
+   Used for easy color & spacing management
+===================================================== */
 :root {
   --bg-gradient: linear-gradient(135deg, #b7e0ff, #e4f1ff, #ffffff);
   --primary: #2562be;
@@ -12,9 +13,9 @@
   --radius: 14px;
 }
 
-/* ======================================
-   GLOBAL RESET
-====================================== */
+/* =====================================================
+   GLOBAL RESET & BASE STYLES
+===================================================== */
 * {
   box-sizing: border-box;
 }
@@ -26,9 +27,9 @@ body {
   color: var(--text-dark);
 }
 
-/* ======================================
-   HEADER
-====================================== */
+/* =====================================================
+   HEADER / HERO SECTION
+===================================================== */
 .hero {
   text-align: center;
   padding: 2rem 1rem;
@@ -45,22 +46,22 @@ body {
   opacity: 0.85;
 }
 
-/* ======================================
-   MAIN CARD
-====================================== */
+/* =====================================================
+   MAIN CARD LAYOUT
+===================================================== */
 .card {
   width: 90%;
   max-width: 900px;
-  margin: 0 auto 2rem auto;
+  margin: 0 auto 2rem;
   background: var(--card-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 2rem;
 }
 
-/* ======================================
-   FORM
-====================================== */
+/* =====================================================
+   FORM STYLING
+===================================================== */
 .form {
   display: flex;
   flex-direction: column;
@@ -87,9 +88,9 @@ textarea:focus {
   outline: none;
 }
 
-/* ======================================
+/* =====================================================
    BUTTON
-====================================== */
+===================================================== */
 button {
   background: var(--primary);
   color: #fff;
@@ -98,15 +99,16 @@ button {
   padding: 0.9rem;
   font-size: 1.05rem;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
 button:hover {
   background: var(--accent);
 }
 
-/* ======================================
-   RESULT SECTION
-====================================== */
+/* =====================================================
+   RESULT / OUTPUT SECTION
+===================================================== */
 .result {
   margin-top: 2rem;
   padding: 1.5rem;
@@ -120,13 +122,14 @@ button:hover {
   line-height: 1.6;
 }
 
+/* Utility class to hide elements */
 .hidden {
   display: none;
 }
 
-/* ======================================
-   AI STATUS INDICATOR
-====================================== */
+/* =====================================================
+   AI STATUS INDICATOR (TOP RIGHT)
+===================================================== */
 .ai-status {
   position: fixed;
   top: 14px;
@@ -139,9 +142,9 @@ button:hover {
   z-index: 1000;
 }
 
-/* ======================================
-   UPSKILL SECTION (VERTICAL)
-====================================== */
+/* =====================================================
+   UPSKILL SECTION
+===================================================== */
 .upskill-card {
   margin-top: 14px;
   padding: 16px;
@@ -152,32 +155,45 @@ button:hover {
   gap: 14px;
 }
 
+/* =====================================================
+   VIDEO GRID
+===================================================== */
+.video-grid {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.video-box {
+  text-align: center;
+}
+
+.video-box p {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+/* Video thumbnail styling */
 .upskill-thumb {
-  width: 260px;
-  border-radius: 8px;
+  width: 220px;
+  border-radius: 10px;
+  transition: transform 0.2s ease;
 }
 
-.upskill-content {
-  width: 100%;
+.upskill-thumb:hover {
+  transform: scale(1.05);
 }
 
-.upskill-content h4 {
-  margin: 0 0 6px 0;
+.video-desc {
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.4;
 }
 
-.upskill-meta {
-  font-size: 0.9rem;
-  margin-bottom: 10px;
-}
-
-.upskill-desc {
-  margin-bottom: 12px;
-  line-height: 1.5;
-}
-
-/* ======================================
-   ONLINE LEARNING PLATFORMS
-====================================== */
+/* =====================================================
+   ONLINE LEARNING PLATFORMS LIST
+===================================================== */
 .upskill-platforms strong {
   display: block;
   margin-bottom: 6px;
@@ -211,49 +227,12 @@ button:hover {
   color: var(--muted);
 }
 
-/* ======================================
+/* =====================================================
    FOOTER
-====================================== */
+===================================================== */
 footer {
   text-align: center;
   font-size: 0.9rem;
   padding: 1rem;
   opacity: 0.7;
 }
-.video-grid {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.video-box {
-  text-align: center;
-}
-
-.video-box p {
-  margin-top: 6px;
-  font-size: 0.85rem;
-  color: #444;
-}
-
-.upskill-thumb {
-  width: 220px;
-  border-radius: 10px;
-  transition: transform 0.2s ease;
-}
-
-.upskill-thumb:hover {
-  transform: scale(1.05);
-}
-.video-desc {
-  font-size: 0.85rem;
-  color: #555;
-  line-height: 1.4;
-}
-
-.video-grid {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-

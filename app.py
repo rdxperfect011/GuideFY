@@ -1,16 +1,21 @@
 import os
 import json
-import re
 from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import google.generativeai as genai
+import requests
 
-# ==========================
-# ENV SETUP
-# ==========================
+# =====================================================
+# ENVIRONMENT & AI CONFIGURATION
+# =====================================================
+
+# Load variables from .env file
 load_dotenv()
+
+# Fetch Gemini API key
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
+# Track AI system health for frontend indicator
 AI_STATUS = {
     "api_key_loaded": bool(GEMINI_API_KEY),
     "model_responded": False,
@@ -18,23 +23,26 @@ AI_STATUS = {
     "last_error": None
 }
 
+# Configure Gemini only if API key is available
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
+# Initialize Flask app
 app = Flask(__name__, static_folder="static", static_url_path="")
 
-# ==========================
-# UPSKILL DATABASE
-# ==========================
-UPSKILL_DB = {
+# =====================================================
+# UPSKILL DATABASE (STATIC FALLBACK CONTENT)
+# =====================================================
 
+# This database is used even when AI fails
+# It ensures the system always returns useful output
+UPSKILL_DB = {
     "business": {
         "title": "Business & Management Essentials",
         "description": (
             "Covers core business principles including management, strategy, analytics, "
             "entrepreneurship, and leadership skills required in modern organizations."
         ),
-
         "videos": [
             {
                 "platform": "freeCodeCamp",
@@ -55,7 +63,6 @@ UPSKILL_DB = {
                 "explanation": "Real-world insights into entrepreneurship and leadership mindset."
             }
         ],
-
         "platforms": [
             {
                 "name": "Coursera",
@@ -69,7 +76,7 @@ UPSKILL_DB = {
             {
                 "name": "Harvard Online",
                 "url": "https://online.hbs.edu/",
-                "details": "Premium business courses designed by Harvard Business School faculty.",
+                "details": "Premium business courses by Harvard faculty.",
                 "best_for": "Leadership & executive learning",
                 "duration": "6–10 weeks",
                 "learning_type": "Case studies + interactive learning",
@@ -78,7 +85,7 @@ UPSKILL_DB = {
             {
                 "name": "Google Digital Garage",
                 "url": "https://learndigital.withgoogle.com/",
-                "details": "Free courses focused on digital marketing, business growth, and productivity.",
+                "details": "Free digital business and marketing courses.",
                 "best_for": "Digital business skills",
                 "duration": "Self-paced",
                 "learning_type": "Short modules",
@@ -93,7 +100,6 @@ UPSKILL_DB = {
             "Introduces programming concepts, software development life cycle, "
             "IT systems, and problem-solving skills."
         ),
-
         "videos": [
             {
                 "platform": "freeCodeCamp",
@@ -114,12 +120,11 @@ UPSKILL_DB = {
                 "explanation": "Overview of IT industry tools and technologies."
             }
         ],
-
         "platforms": [
             {
                 "name": "Coursera",
                 "url": "https://www.coursera.org/browse/computer-science",
-                "details": "Computer science courses with professional certificates.",
+                "details": "Computer science courses with certificates.",
                 "best_for": "Academic + industry learning",
                 "duration": "4–16 weeks",
                 "learning_type": "Lectures + projects",
@@ -128,7 +133,7 @@ UPSKILL_DB = {
             {
                 "name": "edX",
                 "url": "https://www.edx.org/learn/computer-science",
-                "details": "University-backed computer science courses.",
+                "details": "University-backed CS courses.",
                 "best_for": "Theoretical foundations",
                 "duration": "6–12 weeks",
                 "learning_type": "Academic learning",
@@ -137,7 +142,7 @@ UPSKILL_DB = {
             {
                 "name": "Udemy",
                 "url": "https://www.udemy.com/topic/programming/",
-                "details": "Practical programming courses focused on skills.",
+                "details": "Skill-based programming courses.",
                 "best_for": "Hands-on development",
                 "duration": "Self-paced",
                 "learning_type": "Video tutorials",
@@ -152,33 +157,31 @@ UPSKILL_DB = {
             "Introduces cyber threats, ethical hacking, network security, "
             "and defensive security practices."
         ),
-
         "videos": [
             {
                 "platform": "Simplilearn",
                 "url": "https://www.youtube.com/watch?v=U_P23SqJaDc",
                 "thumbnail": "https://img.youtube.com/vi/U_P23SqJaDc/hqdefault.jpg",
-                "explanation": "Introduction to cyber security concepts and threats."
+                "explanation": "Introduction to cyber security concepts."
             },
             {
                 "platform": "NetworkChuck",
                 "url": "https://www.youtube.com/watch?v=qiQR5rTSshw",
                 "thumbnail": "https://img.youtube.com/vi/qiQR5rTSshw/hqdefault.jpg",
-                "explanation": "Explains networking and cyber security fundamentals."
+                "explanation": "Networking and cyber fundamentals."
             },
             {
                 "platform": "HackerSploit",
                 "url": "https://www.youtube.com/watch?v=2_LbZ0PqQ_k",
                 "thumbnail": "https://img.youtube.com/vi/2_LbZ0PqQ_k/hqdefault.jpg",
-                "explanation": "Covers ethical hacking tools and methodologies."
+                "explanation": "Ethical hacking tools and methods."
             }
         ],
-
         "platforms": [
             {
                 "name": "Coursera",
                 "url": "https://www.coursera.org/browse/information-technology/security",
-                "details": "Cyber security certifications and career paths.",
+                "details": "Cyber security career certificates.",
                 "best_for": "Structured security learning",
                 "duration": "4–12 weeks",
                 "learning_type": "Lectures + labs",
@@ -187,8 +190,8 @@ UPSKILL_DB = {
             {
                 "name": "Cisco Networking Academy",
                 "url": "https://www.netacad.com/",
-                "details": "Industry-standard networking and security training.",
-                "best_for": "Networking & cyber careers",
+                "details": "Industry-standard networking training.",
+                "best_for": "Networking careers",
                 "duration": "Self-paced",
                 "learning_type": "Labs + simulations",
                 "certificate": "Yes"
@@ -196,7 +199,7 @@ UPSKILL_DB = {
             {
                 "name": "TryHackMe",
                 "url": "https://tryhackme.com/",
-                "details": "Hands-on cyber security practice platform.",
+                "details": "Hands-on cyber security practice.",
                 "best_for": "Practical hacking skills",
                 "duration": "Self-paced",
                 "learning_type": "Hands-on labs",
@@ -211,28 +214,26 @@ UPSKILL_DB = {
             "Builds transferable skills like communication, problem-solving, "
             "critical thinking, and workplace readiness."
         ),
-
         "videos": [
             {
                 "platform": "freeCodeCamp",
                 "url": "https://www.youtube.com/watch?v=ZXsQAXx_ao0",
                 "thumbnail": "https://img.youtube.com/vi/ZXsQAXx_ao0/hqdefault.jpg",
-                "explanation": "Overview of essential professional and career skills."
+                "explanation": "Essential professional skills overview."
             },
             {
                 "platform": "TEDx",
                 "url": "https://www.youtube.com/watch?v=5MgBikgcWnY",
                 "thumbnail": "https://img.youtube.com/vi/5MgBikgcWnY/hqdefault.jpg",
-                "explanation": "Motivational insights on career growth and mindset."
+                "explanation": "Career growth mindset."
             },
             {
                 "platform": "Simplilearn",
                 "url": "https://www.youtube.com/watch?v=8JJ101D3knE",
                 "thumbnail": "https://img.youtube.com/vi/8JJ101D3knE/hqdefault.jpg",
-                "explanation": "Introduces job-ready professional skills."
+                "explanation": "Job-ready professional skills."
             }
         ],
-
         "platforms": [
             {
                 "name": "Coursera",
@@ -246,8 +247,8 @@ UPSKILL_DB = {
             {
                 "name": "Google AI",
                 "url": "https://ai.google/education/",
-                "details": "Free AI and digital skill resources.",
-                "best_for": "AI awareness & fundamentals",
+                "details": "Free AI and digital skills.",
+                "best_for": "AI fundamentals",
                 "duration": "Self-paced",
                 "learning_type": "Short modules",
                 "certificate": "Yes"
@@ -255,7 +256,7 @@ UPSKILL_DB = {
             {
                 "name": "Kaggle",
                 "url": "https://www.kaggle.com/learn",
-                "details": "Hands-on learning using datasets and notebooks.",
+                "details": "Hands-on learning using datasets.",
                 "best_for": "Practical learning",
                 "duration": "1–3 weeks",
                 "learning_type": "Hands-on practice",
@@ -265,11 +266,15 @@ UPSKILL_DB = {
     }
 }
 
-# ==========================
-# HELPERS
-# ==========================
+# =====================================================
+# HELPER FUNCTIONS
+# =====================================================
+
 def extract_json(text):
-    
+    """
+    Extracts and parses JSON from AI response text.
+    Handles cases where AI adds extra text or code blocks.
+    """
     text = text.replace("```json", "").replace("```", "").strip()
 
     start = text.find("{")
@@ -280,33 +285,37 @@ def extract_json(text):
 
     return json.loads(text[start:end])
 
+
 def detect_field(text):
+    """
+    Detects user domain from keywords.
+    Used to map upskill recommendations.
+    """
     t = text.lower()
 
     if any(k in t for k in ["business", "management", "commerce", "mba", "entrepreneur"]):
         return "business"
-
-    if any(k in t for k in ["software", "programming", "developer", "it", "computer"]):
+    if any(k in t for k in ["software", "programming", "developer", "it", "computer", "ai", "ml", "data"]):
         return "technology"
-
-    if any(k in t for k in ["ai", "machine learning", "data", "ml"]):
-        return "technology"  # 🔁 MAP AI → technology
-
     if any(k in t for k in ["cyber", "security", "hacking"]):
         return "cyber"
 
     return "generic"
 
+
 def build_upskill(user_text):
+    """
+    Returns upskill block based on detected field.
+    Always safe due to generic fallback.
+    """
     field = detect_field(user_text)
+    return UPSKILL_DB.get(field, UPSKILL_DB["generic"])
 
-    # SAFETY FALLBACK
-    if field not in UPSKILL_DB:
-        field = "generic"
-
-    return UPSKILL_DB[field]
 
 def normalize_output(raw, user_text):
+    """
+    Ensures consistent API response format.
+    """
     return {
         "careers": raw.get("careers", []),
         "courses": raw.get("courses", []),
@@ -316,131 +325,82 @@ def normalize_output(raw, user_text):
         "upskill": build_upskill(user_text)
     }
 
+
 def fallback_response(user_text):
+    """
+    Used when AI fails.
+    Guarantees meaningful output.
+    """
     return {
         "careers": [
             {
                 "name": "Professional Specialist",
-                "justification": (
-                    "A flexible career path that allows specialization in a chosen domain such as "
-                    "technology, business, cyber security, or data analysis. This role emphasizes "
-                    "continuous learning, adaptability, and skill enhancement, making it suitable "
-                    "for students who are still exploring their strengths."
-                )
+                "justification": "Flexible role allowing specialization with continuous learning."
             },
             {
                 "name": "Junior Analyst / Associate",
-                "justification": (
-                    "An entry-level role focused on analyzing data, processes, or systems to support "
-                    "decision-making. This role helps build analytical thinking, domain knowledge, "
-                    "and real-world industry exposure."
-                )
+                "justification": "Entry-level analytical role building real-world exposure."
             },
             {
                 "name": "Technical Support / Operations Executive",
-                "justification": (
-                    "Involves supporting systems, tools, or business operations. This role is ideal "
-                    "for developing problem-solving skills, understanding workflows, and gaining "
-                    "hands-on experience in a professional environment."
-                )
+                "justification": "Hands-on operational role developing problem-solving skills."
             }
         ],
-
         "courses": [
             {
                 "name": "Foundational Skills Program",
-                "description": (
-                    "Covers essential technical and professional skills such as basic programming, "
-                    "communication, logical thinking, and digital literacy. This program helps "
-                    "students build a strong base applicable across multiple career paths."
-                )
+                "description": "Builds technical and professional fundamentals."
             },
             {
                 "name": "Introduction to Technology & Systems",
-                "description": (
-                    "Provides an overview of how modern software systems, networks, and applications "
-                    "work together. Useful for students entering IT, analytics, or technical roles."
-                )
+                "description": "Explains how modern IT systems work."
             },
             {
-                "name": "Professional Communication & Workplace Skills",
-                "description": (
-                    "Focuses on communication, teamwork, presentation skills, and workplace ethics, "
-                    "which are critical for career growth in any industry."
-                )
+                "name": "Professional Communication Skills",
+                "description": "Improves workplace and teamwork skills."
             }
         ],
-
         "next_steps": [
-            {
-                "action": "Identify your core interest",
-                "details": (
-                    "Choose one primary domain such as software, data, business, or cyber security "
-                    "based on your interest and aptitude."
-                )
-            },
-            {
-                "action": "Build strong fundamentals",
-                "details": (
-                    "Start with beginner-level courses and focus on understanding core concepts "
-                    "before moving to advanced topics."
-                )
-            },
-            {
-                "action": "Apply learning practically",
-                "details": (
-                    "Work on mini-projects, case studies, or hands-on labs to convert theoretical "
-                    "knowledge into practical skills."
-                )
-            },
-            {
-                "action": "Track progress and improve",
-                "details": (
-                    "Regularly evaluate your learning progress, identify skill gaps, and refine "
-                    "your learning strategy accordingly."
-                )
-            }
+            {"action": "Choose a domain", "details": "Identify your strongest interest area."},
+            {"action": "Learn fundamentals", "details": "Start with beginner-friendly courses."},
+            {"action": "Practice", "details": "Apply learning using projects."}
         ],
-
         "confidence_score": {
             "overall": 68,
-            "explanation": (
-                "Your inputs indicate good potential across multiple domains. With focused learning, "
-                "hands-on practice, and consistent effort, your career readiness can improve "
-                "significantly over time."
-            )
+            "explanation": "Good potential with scope for improvement."
         },
-
         "skill_gap_analysis": {
             "missing_skills": [
-                "Practical hands-on experience",
-                "Advanced domain-specific tools",
-                "Industry exposure",
-                "Project-based learning"
+                "Hands-on experience",
+                "Advanced tools",
+                "Industry exposure"
             ]
         }
     }
 
-# ==========================
+# =====================================================
 # ROUTES
-# ==========================
+# =====================================================
+
 @app.route("/")
 def index():
     return send_from_directory("static", "index.html")
+
 
 @app.route("/api-status")
 def api_status():
     return jsonify(AI_STATUS)
 
+
 @app.route("/career", methods=["POST"])
 def career():
     data = request.get_json(force=True)
-    user_text = f"{data.get('interests','')} {data.get('career_goal','')}"
+    user_text = f"{data.get('interests', '')} {data.get('career_goal', '')}"
 
     try:
         prompt = f"""
 You are a backend API.
-Return ONLY raw JSON. No markdown, no explanations.
+Return ONLY raw JSON.
 
 {{
   "careers":[{{"name":"","justification":""}}],
@@ -456,35 +416,32 @@ Career goal: {data.get('career_goal')}
 
         model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content(prompt)
+
         AI_STATUS["model_responded"] = True
 
-        # SAFE TEXT EXTRACTION
-        if hasattr(response, "text") and response.text:
-            text = response.text
-        else:
-            text = response.candidates[0].content.parts[0].text
-
+        text = response.text if hasattr(response, "text") else response.candidates[0].content.parts[0].text
         raw = extract_json(text)
+
         AI_STATUS["model_parsed"] = True
         AI_STATUS["last_error"] = None
 
         return jsonify({"recommendation": normalize_output(raw, user_text)})
 
     except Exception as e:
-     print("❌ AI ERROR:", e)
+        print("❌ AI ERROR:", e)
+        AI_STATUS["model_parsed"] = False
+        AI_STATUS["last_error"] = str(e)
 
-     AI_STATUS["model_parsed"] = False
-     AI_STATUS["last_error"] = str(e)
+        fb = fallback_response(user_text)
+        fb["upskill"] = build_upskill(user_text)
 
-    fb = fallback_response(user_text)
-    fb["upskill"] = build_upskill(user_text)
-
-    return jsonify({"recommendation": fb}), 200
+        return jsonify({"recommendation": fb}), 200
 
 
-# ==========================
-# MAIN
-# ==========================
+# =====================================================
+# APPLICATION ENTRY POINT
+# =====================================================
+
 if __name__ == "__main__":
     print("🚀 Server running at http://127.0.0.1:5050")
     app.run(debug=True, port=5050)

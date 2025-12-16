@@ -1,24 +1,33 @@
-// =========================
+// =====================================================
 // ELEMENT REFERENCES
-// =========================
+// =====================================================
+
 const form = document.getElementById("career-form");
 const result = document.getElementById("result");
 const recText = document.getElementById("rec-text");
 const statusBox = document.getElementById("status");
 
-// =========================
-// UTIL FUNCTIONS
-// =========================
+// =====================================================
+// UTILITY FUNCTIONS
+// =====================================================
+
+/**
+ * Cleans text coming from backend or AI
+ * Prevents undefined / extra spaces from breaking UI
+ */
 function cleanText(text) {
   if (!text || text === "undefined") return "Not available";
   return text.replace(/\s+/g, " ").trim();
 }
 
-// =========================
+// =====================================================
 // AI STATUS INDICATOR
-// =========================
-document.addEventListener("DOMContentLoaded", updateStatus);
+// =====================================================
 
+/**
+ * Fetches AI health status from backend
+ * Updates indicator color and text
+ */
 async function updateStatus() {
   try {
     const res = await fetch("/api-status");
@@ -26,25 +35,38 @@ async function updateStatus() {
 
     if (status.model_responded && status.model_parsed) {
       statusBox.innerHTML = "🟢 AI System: Online";
-    } else if (status.model_responded) {
+    } 
+    else if (status.model_responded && !status.model_parsed) {
       statusBox.innerHTML = "🟡 AI System: Online (Fallback Active)";
-    } else {
-      statusBox.innerHTML = "🔴 AI System: Ready";
+    } 
+    else if (status.api_key_loaded) {
+      statusBox.innerHTML = "🟡 AI System: Ready";
+    } 
+    else {
+      statusBox.innerHTML = "🔴 AI System: API Key Missing";
     }
-  } catch {
+  } catch (error) {
     statusBox.innerHTML = "🔴 AI System: Offline";
   }
 }
 
-// =========================
-// UPSKILL RENDERING
-// =========================
+// Run once when page loads
+document.addEventListener("DOMContentLoaded", updateStatus);
+
+// =====================================================
+// UPSKILL SECTION RENDERING
+// =====================================================
+
+/**
+ * Renders upskill content (videos + platforms)
+ * Always safe due to backend fallback
+ */
 function renderUpskill(u) {
   if (!u) return "";
 
   const videosHTML = (u.videos || []).map(v => `
     <div class="video-box">
-      <a href="${v.url}" target="_blank">
+      <a href="${v.url}" target="_blank" rel="noopener">
         <img src="${v.thumbnail}" class="upskill-thumb" />
       </a>
       <p><strong>🎥 ${cleanText(v.platform)}</strong></p>
@@ -54,7 +76,9 @@ function renderUpskill(u) {
 
   const platformsHTML = (u.platforms || []).map(p => `
     <li>
-      <a href="${p.url}" target="_blank"><strong>${cleanText(p.name)}</strong></a>
+      <a href="${p.url}" target="_blank" rel="noopener">
+        <strong>${cleanText(p.name)}</strong>
+      </a>
       <div class="platform-info">
         ⭐ Avg Rating: 4.4 / 5 • Certificate: ${cleanText(p.certificate || "Available")}<br>
         🧠 <strong>Best for:</strong> ${cleanText(p.best_for || "Skill development")}<br>
@@ -84,11 +108,15 @@ function renderUpskill(u) {
   `;
 }
 
-// =========================
+// =====================================================
 // MAIN RESULT RENDER
-// =========================
+// =====================================================
+
+/**
+ * Renders full recommendation output
+ */
 function showRecommendation(data) {
-  updateStatus();
+  updateStatus(); // refresh AI indicator after response
 
   const score = Math.round(data?.confidence_score?.overall || 0);
 
@@ -125,11 +153,17 @@ function showRecommendation(data) {
   `;
 }
 
-// =========================
-// FORM SUBMISSION
-// =========================
+// =====================================================
+// FORM SUBMISSION HANDLER
+// =====================================================
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
+
+  // Show loading state
+  statusBox.innerHTML = "🟡 AI System: Processing...";
+  recText.innerHTML = "⏳ Generating recommendations...";
+  result.classList.remove("hidden");
 
   const payload = {
     interests: interests.value,
@@ -137,9 +171,6 @@ form.addEventListener("submit", async (e) => {
     preferred_subjects: preferred_subjects.value,
     career_goal: career_goal.value
   };
-
-  recText.innerHTML = "⏳ Generating recommendations...";
-  result.classList.remove("hidden");
 
   try {
     const res = await fetch("/career", {
@@ -150,7 +181,9 @@ form.addEventListener("submit", async (e) => {
 
     const json = await res.json();
     showRecommendation(json.recommendation);
-  } catch (err) {
+
+  } catch (error) {
     recText.innerHTML = "❌ Failed to load recommendations.";
+    statusBox.innerHTML = "🔴 AI System: Offline";
   }
 });
