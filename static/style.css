@@ -220,3 +220,40 @@ footer {
   padding: 1rem;
   opacity: 0.7;
 }
+.video-grid {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.video-box {
+  text-align: center;
+}
+
+.video-box p {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #444;
+}
+
+.upskill-thumb {
+  width: 220px;
+  border-radius: 10px;
+  transition: transform 0.2s ease;
+}
+
+.upskill-thumb:hover {
+  transform: scale(1.05);
+}
+.video-desc {
+  font-size: 0.85rem;
+  color: #555;
+  line-height: 1.4;
+}
+
+.video-grid {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
