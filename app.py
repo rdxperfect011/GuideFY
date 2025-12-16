@@ -1,93 +1,236 @@
-import os, json
+import os
+import json
+import re
 from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import google.generativeai as genai
-import gspread
-from google.oauth2.service_account import Credentials
 
-# Load .env variables
+# ==========================
+# ENV SETUP
+# ==========================
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-SHEET_NAME = os.getenv("SHEET_NAME", "CareerGuidanceDB")
-GOOGLE_CREDS_PATH = "credentials/google-credentials.json"
 
-if not GEMINI_API_KEY:
-    raise RuntimeError("Missing GEMINI_API_KEY")
+AI_STATUS = {
+    "api_key_loaded": bool(GEMINI_API_KEY),
+    "model_responded": False,
+    "model_parsed": False,
+    "last_error": None
+}
 
-# Setup Gemini API
-genai.configure(api_key=GEMINI_API_KEY)
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
 
-# Flask app
 app = Flask(__name__, static_folder="static", static_url_path="")
 
-# Google Sheets (optional)
-sheet = None
-if os.path.exists(GOOGLE_CREDS_PATH):
-    try:
-        creds = Credentials.from_service_account_file(
-            GOOGLE_CREDS_PATH,
-            scopes=["https://www.googleapis.com/auth/spreadsheets"]
-        )
-        sheet = gspread.authorize(creds).open(SHEET_NAME).sheet1
-    except Exception as e:
-        print("⚠️ Google Sheets setup failed:", e)
+# ==========================
+# UPSKILL DATABASE
+# ==========================
+UPSKILL_DB = {
+    "business": {
+        "title": "Business & Management Essentials",
+        "video": {
+            "platform": "freeCodeCamp",
+            "url": "https://www.youtube.com/watch?v=9pJ7C6J6d-8",
+            "thumbnail": "https://img.youtube.com/vi/9pJ7C6J6d-8/hqdefault.jpg"
+        },
+        "platforms": [
+            ("Coursera", "https://www.coursera.org/browse/business"),
+            ("Harvard Online", "https://online.hbs.edu/"),
+            ("Google Digital Garage", "https://learndigital.withgoogle.com/")
+        ],
+        "description": "Covers core business principles including management, strategy, analytics, and entrepreneurship."
+    },
+    "technology": {
+        "title": "Software & IT Fundamentals",
+        "video": {
+            "platform": "freeCodeCamp",
+            "url": "https://www.youtube.com/watch?v=rfscVS0vtbw",
+            "thumbnail": "https://img.youtube.com/vi/rfscVS0vtbw/hqdefault.jpg"
+        },
+        "platforms": [
+            ("Coursera", "https://www.coursera.org/browse/computer-science"),
+            ("edX", "https://www.edx.org/learn/computer-science"),
+            ("Udemy", "https://www.udemy.com/topic/programming/")
+        ],
+        "description": "Introduces programming concepts, software development, and IT foundations."
+    },
+    "ai": {
+        "title": "AI & Data Science Foundations",
+        "video": {
+            "platform": "freeCodeCamp",
+            "url": "https://www.youtube.com/watch?v=GwIo3gDZCVQ",
+            "thumbnail": "https://img.youtube.com/vi/GwIo3gDZCVQ/hqdefault.jpg"
+        },
+        "platforms": [
+            ("Coursera", "https://www.coursera.org/browse/data-science"),
+            ("Google AI", "https://ai.google/education/"),
+            ("Kaggle", "https://www.kaggle.com/learn")
+        ],
+        "description": "Covers AI, machine learning, and data analytics fundamentals."
+    },
+    "cyber": {
+        "title": "Cyber Security Basics",
+        "video": {
+            "platform": "Simplilearn",
+            "url": "https://www.youtube.com/watch?v=U_P23SqJaDc",
+            "thumbnail": "https://img.youtube.com/vi/U_P23SqJaDc/hqdefault.jpg"
+        },
+        "platforms": [
+            ("Coursera", "https://www.coursera.org/browse/information-technology/security"),
+            ("Cisco Networking Academy", "https://www.netacad.com/"),
+            ("TryHackMe", "https://tryhackme.com/")
+        ],
+        "description": "Introduces cyber threats, network security, and ethical hacking basics."
+    },
+    "generic": {
+        "title": "Career Skill Development",
+        "video": {
+            "platform": "freeCodeCamp",
+            "url": "https://www.youtube.com/watch?v=ZXsQAXx_ao0",
+            "thumbnail": "https://img.youtube.com/vi/ZXsQAXx_ao0/hqdefault.jpg"
+        },
+        "platforms": [
+            ("Coursera", "https://www.coursera.org/"),
+            ("edX", "https://www.edx.org/"),
+            ("Udemy", "https://www.udemy.com/")
+        ],
+        "description": "Builds transferable skills like communication, problem-solving, and digital literacy."
+    }
+}
 
-# Routes
+# ==========================
+# HELPERS
+# ==========================
+def extract_json(text):
+    
+    text = text.replace("```json", "").replace("```", "").strip()
+
+    start = text.find("{")
+    end = text.rfind("}") + 1
+
+    if start == -1 or end == -1:
+        raise ValueError("No JSON object found")
+
+    return json.loads(text[start:end])
+
+def detect_field(text):
+    t = text.lower()
+    if any(k in t for k in ["business", "management", "commerce", "mba", "entrepreneur"]):
+        return "business"
+    if any(k in t for k in ["software", "programming", "developer", "it", "computer"]):
+        return "technology"
+    if any(k in t for k in ["ai", "machine learning", "data"]):
+        return "ai"
+    if any(k in t for k in ["cyber", "security", "hacking"]):
+        return "cyber"
+    return "generic"
+
+def build_upskill(user_text):
+    return UPSKILL_DB[detect_field(user_text)]
+
+def normalize_output(raw, user_text):
+    return {
+        "careers": raw.get("careers", []),
+        "courses": raw.get("courses", []),
+        "next_steps": raw.get("next_steps", []),
+        "confidence_score": raw.get("confidence_score", {}),
+        "skill_gap_analysis": raw.get("skill_gap_analysis", {}),
+        "upskill": build_upskill(user_text)
+    }
+
+def fallback_response(user_text):
+    return {
+        "careers": [
+            {
+                "name": "Professional Specialist",
+                "justification": "A flexible career path allowing specialization and continuous learning."
+            }
+        ],
+        "courses": [
+            {
+                "name": "Foundational Skills Program",
+                "description": "Covers essential professional and technical skills."
+            }
+        ],
+        "next_steps": [
+            {
+                "action": "Choose a specialization",
+                "details": "Select a domain and start structured learning."
+            },
+            {
+                "action": "Practice regularly",
+                "details": "Apply knowledge through projects and assignments."
+            }
+        ],
+        "confidence_score": {
+            "overall": 65,
+            "explanation": "With focused learning, your career readiness can improve significantly."
+        },
+        "skill_gap_analysis": {
+            "missing_skills": ["Practical experience", "Advanced tools", "Industry exposure"]
+        },
+        "upskill": build_upskill(user_text)
+    }
+
+# ==========================
+# ROUTES
+# ==========================
 @app.route("/")
 def index():
     return send_from_directory("static", "index.html")
 
+@app.route("/api-status")
+def api_status():
+    return jsonify(AI_STATUS)
+
 @app.route("/career", methods=["POST"])
 def career():
-    data = request.get_json()
-    name = data.get("name", "Student")
-
-    prompt = f"""
-    You are a career guidance expert. A student named {name} provided:
-    Interests: {data.get('interests')}
-    Strengths: {data.get('strengths')}
-    Subjects: {data.get('preferred_subjects')}
-    Career goal: {data.get('career_goal')}
-    
-    Suggest 3 career paths (with justification), 3–5 recommended courses, and 3 next steps.
-    Format output as JSON with keys: careers, courses, next_steps.
-    Each item should include: name/justification, name/description, and action/details respectively.
-    """
+    data = request.get_json(force=True)
+    user_text = f"{data.get('interests','')} {data.get('career_goal','')}"
 
     try:
-        model = genai.GenerativeModel("models/gemini-2.5-pro")
-        res = model.generate_content(prompt).text.strip()
-        if "```" in res:
-            res = res.split("```")[1].strip("json\n")
-        result = normalize_output(json.loads(res))
+        prompt = f"""
+You are a backend API.
+Return ONLY raw JSON. No markdown, no explanations.
+
+{{
+  "careers":[{{"name":"","justification":""}}],
+  "courses":[{{"name":"","description":""}}],
+  "next_steps":[{{"action":"","details":""}}],
+  "confidence_score":{{"overall":0,"explanation":""}},
+  "skill_gap_analysis":{{"missing_skills":[]}}
+}}
+
+User interests: {data.get('interests')}
+Career goal: {data.get('career_goal')}
+"""
+
+        model = genai.GenerativeModel("models/gemini-2.5-flash")
+        response = model.generate_content(prompt)
+        AI_STATUS["model_responded"] = True
+
+        # SAFE TEXT EXTRACTION
+        if hasattr(response, "text") and response.text:
+            text = response.text
+        else:
+            text = response.candidates[0].content.parts[0].text
+
+        raw = extract_json(text)
+        AI_STATUS["model_parsed"] = True
+        AI_STATUS["last_error"] = None
+
+        return jsonify({"recommendation": normalize_output(raw, user_text)})
+
     except Exception as e:
-        return jsonify({"error": "Gemini API failed", "details": str(e)}), 500
+        print("❌ AI ERROR:", e)
+        AI_STATUS["model_parsed"] = False
+        AI_STATUS["last_error"] = str(e)
+        return jsonify({"recommendation": fallback_response(user_text)}), 200
 
-    # Save to Google Sheet
-    if sheet:
-        try:
-            sheet.append_row([
-                name, data.get("email", ""),
-                data.get("interests"), data.get("strengths"),
-                data.get("preferred_subjects"), data.get("career_goal"),
-                json.dumps(result)
-            ])
-        except Exception as e:
-            print("⚠️ Google Sheet write failed:", e)
-
-    return jsonify({"recommendation": result})
-
-# Format Gemini output
-def normalize_output(raw):
-    def clean(t): return t.strip().capitalize() if isinstance(t, str) and t.strip() else "Not specified"
-    def get(v, *k): return next((v[i] for i in k if isinstance(v, dict) and v.get(i)), None)
-
-    return {
-        "careers": [{"name": clean(get(c, "name", "title")), "justification": clean(c.get("justification"))} for c in raw.get("careers", [])],
-        "courses": [{"name": clean(get(c, "name", "title")), "description": clean(c.get("description"))} for c in raw.get("courses", [])],
-        "next_steps": [{"action": clean(get(s, "action", "step")), "details": clean(s.get("details", ""))} for s in raw.get("next_steps", [])]
-    }
-
+# ==========================
+# MAIN
+# ==========================
 if __name__ == "__main__":
     print("🚀 Server running at http://127.0.0.1:5050")
-    app.run(host="0.0.0.0", port=5050, debug=True)
+    app.run(debug=True, port=5050)
