@@ -1,7 +1,7 @@
-/* =====================================================
-   ROOT VARIABLES (THEME CONFIGURATION)
-   Used for easy color & spacing management
-===================================================== */
+/*
+ROOT VARIABLES (THEME CONFIGURATION)
+Used for easy color & spacing management
+ */
 :root {
   --bg-gradient: linear-gradient(135deg, #b7e0ff, #e4f1ff, #ffffff);
   --primary: #2562be;
@@ -13,9 +13,9 @@
   --radius: 14px;
 }
 
-/* =====================================================
+/*
    GLOBAL RESET & BASE STYLES
-===================================================== */
+*/
 * {
   box-sizing: border-box;
 }
@@ -27,9 +27,9 @@ body {
   color: var(--text-dark);
 }
 
-/* =====================================================
+/*
    HEADER / HERO SECTION
-===================================================== */
+*/
 .hero {
   text-align: center;
   padding: 2rem 1rem;
@@ -46,9 +46,9 @@ body {
   opacity: 0.85;
 }
 
-/* =====================================================
+/*
    MAIN CARD LAYOUT
-===================================================== */
+*/
 .card {
   width: 90%;
   max-width: 900px;
@@ -59,9 +59,9 @@ body {
   padding: 2rem;
 }
 
-/* =====================================================
+/*
    FORM STYLING
-===================================================== */
+ */
 .form {
   display: flex;
   flex-direction: column;
@@ -88,9 +88,9 @@ textarea:focus {
   outline: none;
 }
 
-/* =====================================================
+/*
    BUTTON
-===================================================== */
+*/
 button {
   background: var(--primary);
   color: #fff;
@@ -106,9 +106,9 @@ button:hover {
   background: var(--accent);
 }
 
-/* =====================================================
+/*
    RESULT / OUTPUT SECTION
-===================================================== */
+*/
 .result {
   margin-top: 2rem;
   padding: 1.5rem;
@@ -127,9 +127,9 @@ button:hover {
   display: none;
 }
 
-/* =====================================================
+/*
    AI STATUS INDICATOR (TOP RIGHT)
-===================================================== */
+*/
 .ai-status {
   position: fixed;
   top: 14px;
@@ -142,9 +142,9 @@ button:hover {
   z-index: 1000;
 }
 
-/* =====================================================
+/*
    UPSKILL SECTION
-===================================================== */
+*/
 .upskill-card {
   margin-top: 14px;
   padding: 16px;
@@ -155,9 +155,9 @@ button:hover {
   gap: 14px;
 }
 
-/* =====================================================
+/*
    VIDEO GRID
-===================================================== */
+*/
 .video-grid {
   display: flex;
   gap: 16px;
@@ -191,9 +191,9 @@ button:hover {
   line-height: 1.4;
 }
 
-/* =====================================================
+/*
    ONLINE LEARNING PLATFORMS LIST
-===================================================== */
+*/
 .upskill-platforms strong {
   display: block;
   margin-bottom: 6px;
@@ -227,9 +227,9 @@ button:hover {
   color: var(--muted);
 }
 
-/* =====================================================
+/*
    FOOTER
-===================================================== */
+*/
 footer {
   text-align: center;
   font-size: 0.9rem;

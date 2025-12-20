@@ -203,7 +203,203 @@ UPSKILL_DB = {
             }
         ]
     },
-
+    "agriculture": {
+    "title": "Agriculture & Agri-Technology",
+    "description": (
+        "Focuses on modern farming techniques, crop management, "
+        "agri-technology, sustainable agriculture, and agribusiness skills."
+    ),
+    "videos": [
+        {
+            "platform": "YouTube - Krishi Jagran",
+            "url": "https://www.youtube.com/watch?v=Q9ZJYcY6ZrA",
+            "thumbnail": "https://img.youtube.com/vi/Q9ZJYcY6ZrA/hqdefault.jpg",
+            "explanation": "Introduction to modern agriculture and farming techniques."
+        },
+        {
+            "platform": "YouTube - ICAR",
+            "url": "https://www.youtube.com/watch?v=R9pPj5V1x1I",
+            "thumbnail": "https://img.youtube.com/vi/R9pPj5V1x1I/hqdefault.jpg",
+            "explanation": "Scientific crop production and soil management."
+        },
+        {
+            "platform": "YouTube - Agritech",
+            "url": "https://www.youtube.com/watch?v=Y5ZpQfW9k8g",
+            "thumbnail": "https://img.youtube.com/vi/Y5ZpQfW9k8g/hqdefault.jpg",
+            "explanation": "Use of technology and AI in agriculture."
+        }
+    ],
+    "platforms": [
+        {
+            "name": "Coursera",
+            "url": "https://www.coursera.org/browse/life-sciences/agriculture",
+            "details": "Agriculture and food production courses by universities.",
+            "best_for": "Agri fundamentals & certification",
+            "duration": "4–10 weeks",
+            "learning_type": "Online courses",
+            "certificate": "Yes"
+        },
+        {
+            "name": "SWAYAM (Govt of India)",
+            "url": "https://swayam.gov.in/",
+            "details": "Free government-certified agriculture courses.",
+            "best_for": "Indian agriculture education",
+            "duration": "Self-paced",
+            "learning_type": "Video lectures",
+            "certificate": "Yes"
+        }
+    ]
+},
+"medical": {
+    "title": "Medical & Healthcare Careers",
+    "description": (
+        "Focuses on healthcare, medicine, diagnostics, patient care, "
+        "medical technology, and allied health professions."
+    ),
+    "videos": [
+        {
+            "platform": "YouTube",
+            "url": "https://www.youtube.com/watch?v=3UczbYv0p6Q",
+            "thumbnail": "https://img.youtube.com/vi/3UczbYv0p6Q/hqdefault.jpg",
+            "explanation": "Overview of medical and healthcare career options."
+        },
+        {
+            "platform": "YouTube",
+            "url": "https://www.youtube.com/watch?v=Z1w2vQ9SxRA",
+            "thumbnail": "https://img.youtube.com/vi/Z1w2vQ9SxRA/hqdefault.jpg",
+            "explanation": "Explains roles like doctor, nurse, pharmacist, and technician."
+        },
+        {
+            "platform": "YouTube",
+            "url": "https://www.youtube.com/watch?v=kF0ZqG7R7pA",
+            "thumbnail": "https://img.youtube.com/vi/kF0ZqG7R7pA/hqdefault.jpg",
+            "explanation": "Introduction to modern healthcare and medical technology."
+        }
+    ],
+    "platforms": [
+        {
+            "name": "Coursera",
+            "url": "https://www.coursera.org/browse/health",
+            "details": "Medical and healthcare courses from universities.",
+            "best_for": "Healthcare fundamentals",
+            "duration": "4–12 weeks",
+            "learning_type": "Video + assessments",
+            "certificate": "Yes"
+        },
+        {
+            "name": "WHO Open Learning",
+            "url": "https://www.who.int/careers",
+            "details": "Public health and medical awareness courses.",
+            "best_for": "Public health & awareness",
+            "duration": "Self-paced",
+            "learning_type": "Short modules",
+            "certificate": "Yes"
+        },
+        {
+            "name": "Khan Academy Medicine",
+            "url": "https://www.khanacademy.org/science/health-and-medicine",
+            "details": "Free medical science explanations.",
+            "best_for": "Medical basics",
+            "duration": "Self-paced",
+            "learning_type": "Concept videos",
+            "certificate": "No"
+        }
+    ]
+},
+"ai_ml": {
+    "title": "Artificial Intelligence & Machine Learning",
+    "description": (
+        "Focuses on AI concepts, machine learning algorithms, data handling, "
+        "model building, and real-world AI applications."
+    ),
+    "videos": [
+        {
+            "platform": "freeCodeCamp",
+            "url": "https://www.youtube.com/watch?v=JMUxmLyrhSk",
+            "thumbnail": "https://img.youtube.com/vi/JMUxmLyrhSk/hqdefault.jpg",
+            "explanation": "Complete AI roadmap and fundamentals."
+        },
+        {
+            "platform": "Simplilearn",
+            "url": "https://www.youtube.com/watch?v=ukzFI9rgwfU",
+            "thumbnail": "https://img.youtube.com/vi/ukzFI9rgwfU/hqdefault.jpg",
+            "explanation": "Machine Learning explained with examples."
+        },
+        {
+            "platform": "Krish Naik",
+            "url": "https://www.youtube.com/watch?v=GwIo3gDZCVQ",
+            "thumbnail": "https://img.youtube.com/vi/GwIo3gDZCVQ/hqdefault.jpg",
+            "explanation": "AI/ML career roadmap for students."
+        }
+    ],
+    "platforms": [
+        {
+            "name": "Coursera",
+            "url": "https://www.coursera.org/browse/data-science/machine-learning",
+            "details": "Industry-recognized AI/ML courses.",
+            "best_for": "Strong AI foundation",
+            "duration": "6–12 weeks",
+            "learning_type": "Projects + theory",
+            "certificate": "Yes"
+        },
+        {
+            "name": "Google AI",
+            "url": "https://ai.google/education/",
+            "details": "Free AI learning by Google.",
+            "best_for": "AI fundamentals",
+            "duration": "Self-paced",
+            "learning_type": "Short modules",
+            "certificate": "Yes"
+        }
+    ]
+},
+"politics": {
+    "title": "Political Science & Public Policy",
+    "description": (
+        "Covers political systems, governance, public administration, "
+        "policy-making, international relations, and civic leadership."
+    ),
+    "videos": [
+        {
+            "platform": "YouTube - StudyIQ IAS",
+            "url": "https://www.youtube.com/watch?v=CRP_o8aZmRw",
+            "thumbnail": "https://img.youtube.com/vi/CRP_o8aZmRw/maxresdefault.jpg",
+            "explanation": "Political Science as a Master Science || Aristotle || PSIR || Shubhra Ranjan."
+        },
+        {
+            "platform": "YouTube - StudyIQ IAS:",
+            "url": "https://www.youtube.com/watch?v=5HOiHKPFTGs",
+            "thumbnail": "https://img.youtube.com/vi/5HOiHKPFTGs/maxresdefault.jpg",
+            "explanation": "Complete Indian Polity for UPSC CSE 2025-26 | StudyIQ | Shashank Tyagi."
+        },
+        {
+            "platform": "YouTube - CrashCourse",
+            "url": "https://www.youtube.com/watch?v=qRdHKmj4-iE",
+            "thumbnail": "https://img.youtube.com/vi/qRdHKmj4-iE/maxresdefault.jpg",
+            "explanation": "Understanding Geopolitics and International Relations Roots."
+        }
+    ],
+    "platforms": [
+        {
+            "name": "Coursera",
+            "url": "https://www.coursera.org/browse/social-sciences/political-science",
+            "details": "Political science and international relations courses.",
+            "best_for": "Policy & governance studies",
+            "duration": "4–12 weeks",
+            "learning_type": "University courses",
+            "certificate": "Yes"
+        },
+        {
+            "name": "edX",
+            "url": "https://www.edx.org/learn/political-science",
+            "details": "Public policy and government programs from universities.",
+            "best_for": "Academic political studies",
+            "duration": "6–10 weeks",
+            "learning_type": "Academic learning",
+            "certificate": "Yes"
+        }
+    ]
+},
     "generic": {
         "title": "Career Skill Development",
         "description": (
@@ -262,13 +458,14 @@ UPSKILL_DB = {
     }
 }
 
-
 # HELPER FUNCTIONS
+
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
-def fetch_youtube_videos(topic, max_results=3):
+def fetch_youtube_videos(query, max_results=3):
     """
-    Fetches YouTube videos dynamically based on topic
+    Fetches relevant YouTube videos using YouTube Data API.
+    Returns clean, usable video data.
     """
     if not YOUTUBE_API_KEY:
         return []
@@ -276,11 +473,11 @@ def fetch_youtube_videos(topic, max_results=3):
     url = "https://www.googleapis.com/youtube/v3/search"
     params = {
         "part": "snippet",
-        "q": topic,
+        "q": query,
         "type": "video",
         "maxResults": max_results,
         "key": YOUTUBE_API_KEY,
-        "safeSearch": "strict"
+        "videoDuration": "medium"
     }
 
     try:
@@ -289,22 +486,27 @@ def fetch_youtube_videos(topic, max_results=3):
 
         videos = []
         for item in data.get("items", []):
-            video_id = item["id"]["videoId"]
-            snippet = item["snippet"]
+            title = item["snippet"]["title"].lower()
 
+            # simple filtering
+            if any(x in title for x in ["shorts", "funny", "meme"]):
+                continue
+
+            video_id = item["id"]["videoId"]
             videos.append({
                 "platform": "YouTube",
                 "url": f"https://www.youtube.com/watch?v={video_id}",
-                "thumbnail": snippet["thumbnails"]["high"]["url"],
-                "explanation": snippet["title"]
+                "thumbnail": item["snippet"]["thumbnails"]["high"]["url"],
+                "explanation": "Recommended based on your interest and beginner relevance."
             })
 
         return videos
 
     except Exception as e:
-        print("YouTube API Error:", e)
+        print("❌ YouTube API Error:", e)
         return []
-
+    
+# Purpose : Safely extract and parse JSON data from AI response text
 def extract_json(text):
     """
     Extracts and parses JSON from AI response text.
@@ -320,38 +522,91 @@ def extract_json(text):
 
     return json.loads(text[start:end])
 
-
+#Fallback field detection based on keywords
 def detect_field(text):
-    """
-    Detects user domain from keywords.
-    Used to map upskill recommendations.
-    """
     t = text.lower()
 
-    if any(k in t for k in ["business", "management", "commerce", "mba", "entrepreneur"]):
-        return "business"
-    if any(k in t for k in ["software", "programming", "developer", "it", "computer", "ai", "ml", "data"]):
+    # AI / ML SPECIALIZATION
+    if any(k in t for k in [
+        "artificial intelligence", "ai",
+        "machine learning", "ml",
+        "deep learning", "neural network"
+    ]):
+        return "ai_ml"
+    
+    # TECHNOLOGY
+    if any(k in t for k in [
+        "information technology", "computer science",
+        "software", "programming", "developer", "coding",
+        "ai", "machine learning", "ml", "data science"
+    ]):
         return "technology"
-    if any(k in t for k in ["cyber", "security", "hacking"]):
+        return "ai_ml"
+    # CYBER SECURITY
+    if any(k in t for k in [
+        "cyber security", "network security", "hacking"
+    ]):
         return "cyber"
+
+    # MEDICAL / HEALTHCARE
+    if any(k in t for k in [
+        "medical", "medicine", "healthcare", "doctor",
+        "nurse", "mbbs", "pharmacy", "hospital"
+    ]):
+        return "medical"
+
+    # POLITICS / PUBLIC POLICY
+    if any(k in t for k in [
+        "politics", "political science", "public policy",
+        "governance", "civil services", "upsc", "law"
+    ]):
+        return "politics"
+
+    # BUSINESS
+    if any(k in t for k in [
+        "business", "management", "commerce", "mba", "entrepreneur"
+    ]):
+        return "business"
+
+    # AGRICULTURE
+    if any(k in t for k in [
+        "agriculture", "farming", "crop", "soil", "agribusiness"
+    ]):
+        return "agriculture"
 
     return "generic"
 
+#YouTube Filtering and integration
 
 def build_upskill(user_text):
     field = detect_field(user_text)
+    base = UPSKILL_DB.get(field, UPSKILL_DB["generic"]).copy()
 
-    upskill = UPSKILL_DB.get(field, UPSKILL_DB["generic"]).copy()
+    # YouTube search queries
+    query_map = {
+        "ai_ml": "artificial intelligence machine learning career roadmap beginner",
+        "technology": "information technology career roadmap beginner",
+        "cyber": "cyber security career roadmap beginner",
+        "medical": "medical healthcare careers for students",
+        "politics": "political science public policy careers",
+        "business": "business management career guide",
+        "agriculture": "agriculture technology careers beginner",
+        "generic": "career skills for students"
+    }
 
-    # 🔥 AUTO FETCH VIDEOS FROM YOUTUBE
-    dynamic_videos = fetch_youtube_videos(
-        topic=upskill["title"]
-    )
+    yt_query = query_map.get(field, "career guidance for students")
 
-    if dynamic_videos:
-        upskill["videos"] = dynamic_videos
+    # 🔒 Fetch LIMITED YouTube videos
+    yt_videos = fetch_youtube_videos(yt_query, max_results=3)
 
-    return upskill
+    # ✅ Use YouTube ONLY if valid videos exist
+    if yt_videos and len(yt_videos) >= 1:
+        base["videos"] = yt_videos[:3]
+    else:
+        # Safety: keep static curated videos
+        base["videos"] = base.get("videos", [])[:3]
+
+    return base
 
 def normalize_output(raw, user_text):
     """
@@ -365,7 +620,6 @@ def normalize_output(raw, user_text):
         "skill_gap_analysis": raw.get("skill_gap_analysis", {}),
         "upskill": build_upskill(user_text)
     }
-
 
 def fallback_response(user_text):
     """
@@ -419,7 +673,6 @@ def fallback_response(user_text):
         }
     }
 
-
 # ROUTES
 @app.route("/")
 def index():
@@ -440,7 +693,9 @@ def career():
         prompt = f"""
 You are a backend API.
 Return ONLY raw JSON.
-Give output in at least 40-50 words per field.
+Give output in at least 20-30 words per field.
+The confidence_score.overall must be a number between 0 and 100 (percentage).
+Do Not use 1–5 or 1–10 scales.
 {{
   "careers":[{{"name":"","justification":""}}],
   "courses":[{{"name":"","description":""}}],
@@ -452,7 +707,6 @@ Give output in at least 40-50 words per field.
 User interests: {data.get('interests')}
 Career goal: {data.get('career_goal')}
 """
-
         model = genai.GenerativeModel("models/gemini-2.5-flash")
         response = model.generate_content(prompt)
 
@@ -476,9 +730,7 @@ Career goal: {data.get('career_goal')}
 
         return jsonify({"recommendation": fb}), 200
 
-
-
 # APPLICATION ENTRY POINT
 if __name__ == "__main__":
     print("🚀 Server running at http://127.0.0.1:5050")
-    app.run(debug=True, port=5050)
+    app.run(debug=True, port=5050, threaded=True)

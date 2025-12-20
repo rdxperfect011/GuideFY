@@ -1,13 +1,9 @@
-
 const form = document.getElementById("career-form");
 const result = document.getElementById("result");
 const recText = document.getElementById("rec-text");
 const statusBox = document.getElementById("status");
 
-// =====================================================
 // UTILITY FUNCTIONS
-// =====================================================
-
 /**
  * Cleans text coming from backend or AI
  * Prevents undefined / extra spaces from breaking UI
@@ -16,11 +12,7 @@ function cleanText(text) {
   if (!text || text === "undefined") return "Not available";
   return text.replace(/\s+/g, " ").trim();
 }
-
-// =====================================================
 // AI STATUS INDICATOR
-// =====================================================
-
 /**
  * Fetches AI health status from backend
  * Updates indicator color and text
@@ -50,10 +42,7 @@ async function updateStatus() {
 // Run once when page loads
 document.addEventListener("DOMContentLoaded", updateStatus);
 
-// =====================================================
 // UPSKILL SECTION RENDERING
-// =====================================================
-
 /**
  * Renders upskill content (videos + platforms)
  * Always safe due to backend fallback
@@ -104,11 +93,7 @@ function renderUpskill(u) {
     </div>
   `;
 }
-
-// =====================================================
 // MAIN RESULT RENDER
-// =====================================================
-
 /**
  * Renders full recommendation output
  */
@@ -150,10 +135,7 @@ function showRecommendation(data) {
   `;
 }
 
-// =====================================================
 // FORM SUBMISSION HANDLER
-// =====================================================
-
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
