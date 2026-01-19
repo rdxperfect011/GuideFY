@@ -732,5 +732,5 @@ Career goal: {data.get('career_goal')}
 
 # APPLICATION ENTRY POINT
 if __name__ == "__main__":
-    print("🚀 Server running at http://127.0.0.1:5050")
+    print("Server running at http://127.0.0.1:5050")
     app.run(debug=True, port=5050, threaded=True)
