@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GuideFY - Career Guidance Tool</title>
+  <link rel="stylesheet" href="common.css">
+  <link rel="stylesheet" href="guidefy.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div class="background">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+  </div>
+
+  <nav class="navbar">
+    <div class="nav-content">
+      <a href="/" class="logo">
+        <span class="logo-icon">🎯</span>
+        <span class="logo-text">GuideFY</span>
+      </a>
+      <a href="/" class="back-link">← Back to Home</a>
+    </div>
+  </nav>
+
+  <div id="status" class="ai-status">
+    🔴 AI System: Initializing...
+  </div>
+
+  <main class="container">
+    <div class="hero">
+      <h1>🎯 Career Guidance Tool</h1>
+      <p>Get personalized career advice based on your interests and strengths</p>
+    </div>
+
+    <div class="card glass-card">
+      <form id="career-form" class="form">
+        <h2>🧭 Tell Us About Yourself</h2>
+
+        <label>
+          Name
+          <input type="text" id="name" placeholder="Your full name" required />
+        </label>
+
+        <label>
+          Email (optional)
+          <input type="email" id="email" placeholder="student@example.com" />
+        </label>
+
+        <label>
+          Interests
+          <textarea id="interests" placeholder="e.g., Web dev, AI, Networking" required></textarea>
+        </label>
+
+        <label>
+          Strengths / Skills
+          <textarea id="strengths" placeholder="e.g., problem solving, creativity"></textarea>
+        </label>
+
+        <label>
+          Preferred Subjects
+          <input type="text" id="preferred_subjects" placeholder="e.g., DBMS, COA, CN" />
+        </label>
+
+        <label>
+          Career Goal
+          <input type="text" id="career_goal" placeholder="e.g., become a software engineer" />
+        </label>
+
+        <button type="submit" class="btn-submit">🚀 Get Recommendations</button>
+      </form>
+
+      <section id="result" class="hidden result">
+        <h2>✨ Recommendations</h2>
+        <div id="rec-text" class="rec-text">Waiting for suggestions...</div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p>Made with ❤️ by Diploma Engineering Students</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

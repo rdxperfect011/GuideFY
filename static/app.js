@@ -24,13 +24,13 @@ async function updateStatus() {
 
     if (status.model_responded && status.model_parsed) {
       statusBox.innerHTML = "🟢 AI System: Online";
-    } 
+    }
     else if (status.model_responded && !status.model_parsed) {
       statusBox.innerHTML = "🟡 AI System: Online (Fallback Active)";
-    } 
+    }
     else if (status.api_key_loaded) {
       statusBox.innerHTML = "🟡 AI System: Ready";
-    } 
+    }
     else {
       statusBox.innerHTML = "🔴 AI System: API Key Missing";
     }
@@ -51,45 +51,49 @@ function renderUpskill(u) {
   if (!u) return "";
 
   const videosHTML = (u.videos || []).map(v => `
-    <div class="video-box">
+    <div class="video-card">
       <a href="${v.url}" target="_blank" rel="noopener">
-        <img src="${v.thumbnail}" class="upskill-thumb" />
+        <img src="${v.thumbnail}" class="video-thumbnail" alt="Video thumbnail" />
       </a>
-      <p><strong>🎥 ${cleanText(v.platform)}</strong></p>
-      <p class="video-desc">${cleanText(v.explanation)}</p>
+      <div class="video-info">
+        <span class="video-platform">${cleanText(v.platform)}</span>
+        <p class="video-explanation">${cleanText(v.explanation)}</p>
+      </div>
     </div>
   `).join("");
 
   const platformsHTML = (u.platforms || []).map(p => `
-    <li>
-      <a href="${p.url}" target="_blank" rel="noopener">
-        <strong>${cleanText(p.name)}</strong>
-      </a>
-      <div class="platform-info">
+    <div class="course-item">
+      <h4>
+        <a href="${p.url}" target="_blank" rel="noopener">
+          ${cleanText(p.name)}
+        </a>
+      </h4>
+      <p>
         ⭐ Avg Rating: 4.4 / 5 • Certificate: ${cleanText(p.certificate || "Available")}<br>
         🧠 <strong>Best for:</strong> ${cleanText(p.best_for || "Skill development")}<br>
         ⏱ <strong>Duration:</strong> ${cleanText(p.duration || "Self-paced")}<br>
         📚 <strong>Learning Type:</strong> ${cleanText(p.learning_type || "Online learning")}<br>
         📄 ${cleanText(p.details || "Professional online learning platform")}
-      </div>
-    </li>
+      </p>
+    </div>
   `).join("");
 
   return `
-    <div class="upskill-card">
-      <h4>🔥 ${cleanText(u.title)}</h4>
-      <p>${cleanText(u.description)}</p>
-
-      <div class="video-grid">
-        ${videosHTML || "<p>No videos available</p>"}
+    <div class="upskill-section">
+      <div class="upskill-header">
+        <h3 class="upskill-title">${cleanText(u.title)}</h3>
+        <p class="upskill-description">${cleanText(u.description)}</p>
       </div>
 
-      <div class="upskill-platforms">
-        <strong>🌐 Online Learning Platforms</strong>
-        <ul>
-          ${platformsHTML || "<li>No platforms available</li>"}
-        </ul>
-      </div>
+      ${videosHTML ? `<div class="video-grid">${videosHTML}</div>` : ""}
+
+      ${platformsHTML ? `
+        <div class="course-list">
+          <h4>🌐 Online Learning Platforms</h4>
+          ${platformsHTML}
+        </div>
+      ` : ""}
     </div>
   `;
 }
@@ -102,36 +106,67 @@ function showRecommendation(data) {
 
   const score = Math.round(data?.confidence_score?.overall || 0);
 
+  // Careers section with career-grid
+  const careersHTML = (data.careers || []).map(c => `
+    <div class="career-card">
+      <h4>${cleanText(c.name)}</h4>
+      <p>${cleanText(c.justification)}</p>
+    </div>
+  `).join("");
+
+  // Courses section with course-list
+  const coursesHTML = (data.courses || []).map(c => `
+    <div class="course-item">
+      <h4>${cleanText(c.name)}</h4>
+      <p>${cleanText(c.description)}</p>
+    </div>
+  `).join("");
+
+  // Next steps with steps-list
+  const stepsHTML = (data.next_steps || []).map((n, index) => `
+    <div class="step-item">
+      <div class="step-number">${index + 1}</div>
+      <div class="step-content">
+        <h4>${cleanText(n.action)}</h4>
+        <p>${cleanText(n.details)}</p>
+      </div>
+    </div>
+  `).join("");
+
   recText.innerHTML = `
-    <h3>🚀 Careers</h3>
-    <ul>
-      ${(data.careers || []).map(c =>
-        `<li><strong>${cleanText(c.name)}</strong>: ${cleanText(c.justification)}</li>`
-      ).join("")}
-    </ul>
+    <div class="results-section">
+      <div class="glass-card">
+        <h3>🚀 Recommended Careers</h3>
+        <div class="career-grid">
+          ${careersHTML || "<p>No career recommendations available</p>"}
+        </div>
+      </div>
 
-    <h3>📚 Courses</h3>
-    <ul>
-      ${(data.courses || []).map(c =>
-        `<li><strong>${cleanText(c.name)}</strong>: ${cleanText(c.description)}</li>`
-      ).join("")}
-    </ul>
+      <div class="glass-card">
+        <h3>📚 Recommended Courses</h3>
+        <div class="course-list">
+          ${coursesHTML || "<p>No course recommendations available</p>"}
+        </div>
+      </div>
 
-    <h3>👣 Next Steps</h3>
-    <ul>
-      ${(data.next_steps || []).map(n =>
-        `<li><strong>${cleanText(n.action)}</strong>: ${cleanText(n.details)}</li>`
-      ).join("")}
-    </ul>
+      <div class="glass-card">
+        <h3>👣 Next Steps</h3>
+        <div class="steps-list">
+          ${stepsHTML || "<p>No steps available</p>"}
+        </div>
+      </div>
 
-    <h3>📊 Career Confidence Score</h3>
-    <p>
-      <strong>${score}%</strong> — 
-      ${cleanText(data?.confidence_score?.explanation)}
-    </p>
+      <div class="glass-card score-card">
+        <h3>📊 Career Confidence Score</h3>
+        <div class="score-value">${score}%</div>
+        <p class="score-explanation">${cleanText(data?.confidence_score?.explanation)}</p>
+      </div>
 
-    <h3>🔥 Upskill (Recommended Learning)</h3>
-    ${renderUpskill(data.upskill)}
+      <div class="glass-card">
+        <h3>🔥 Upskill (Recommended Learning)</h3>
+        ${renderUpskill(data.upskill)}
+      </div>
+    </div>
   `;
 }
 

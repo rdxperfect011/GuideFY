@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Analyzer - GuideFY</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="resume.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="background">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="/" class="logo">
+                <span class="logo-icon">🎯</span>
+                <span class="logo-text">GuideFY</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/guidefy" class="nav-link">Career Guidance</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="hero">
+            <h1>📄 Resume Analyzer</h1>
+            <p>Get AI-powered insights to optimize your resume for ATS and recruiters</p>
+        </div>
+
+        <!-- Upload Section -->
+        <div id="upload-section" class="upload-section">
+            <div class="glass-card upload-card">
+                <div class="upload-icon">📤</div>
+                <h2>Upload Your Resume</h2>
+                <p class="upload-subtitle">Drag and drop your resume or click to browse</p>
+
+                <div id="drop-zone" class="drop-zone">
+                    <div class="drop-zone-content">
+                        <svg class="upload-svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        <p class="drop-text">Drop your resume here</p>
+                        <p class="drop-subtext">or</p>
+                        <button type="button" class="btn-browse"
+                            onclick="document.getElementById('file-input').click()">
+                            Browse Files
+                        </button>
+                        <input type="file" id="file-input" accept=".pdf,.docx,.doc" hidden>
+                        <p class="file-types">Supports PDF and DOCX (Max 10MB)</p>
+                    </div>
+                </div>
+
+                <div id="file-preview" class="file-preview hidden">
+                    <div class="file-info">
+                        <span class="file-icon">📄</span>
+                        <div class="file-details">
+                            <p class="file-name" id="file-name">resume.pdf</p>
+                            <p class="file-size" id="file-size">2.5 MB</p>
+                        </div>
+                        <button class="btn-remove" id="remove-file">✕</button>
+                    </div>
+                    <button class="btn-analyze" id="analyze-btn">
+                        <span>Analyze Resume</span>
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div id="loading" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Analyzing your resume...</p>
+                    <p class="loading-subtext">This may take a few moments</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="results-section hidden">
+            <div class="results-header">
+                <h2>✨ Analysis Results</h2>
+                <button class="btn-secondary" id="analyze-another">Analyze Another Resume</button>
+            </div>
+
+            <!-- ATS Score -->
+            <div class="glass-card score-card">
+                <h3>ATS Compatibility Score</h3>
+                <div class="score-container">
+                    <svg class="score-circle" width="200" height="200">
+                        <circle class="score-bg" cx="100" cy="100" r="90"></circle>
+                        <circle class="score-fill" id="score-circle" cx="100" cy="100" r="90"></circle>
+                    </svg>
+                    <div class="score-value">
+                        <span id="ats-score" class="score-number">0</span>
+                        <span class="score-label">/100</span>
+                    </div>
+                </div>
+                <p class="score-description" id="score-description">Loading...</p>
+            </div>
+
+            <!-- Strengths -->
+            <div class="glass-card">
+                <h3>💪 Strengths</h3>
+                <div id="strengths-list" class="list-container">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- Weaknesses -->
+            <div class="glass-card">
+                <h3>⚠️ Areas for Improvement</h3>
+                <div id="weaknesses-list" class="list-container">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- Keywords -->
+            <div class="glass-card">
+                <h3>🔑 Keyword Analysis</h3>
+                <div class="keywords-grid">
+                    <div class="keyword-section">
+                        <h4>Technical Skills Found</h4>
+                        <div id="technical-keywords" class="keyword-tags">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                    <div class="keyword-section">
+                        <h4>Missing Keywords</h4>
+                        <div id="missing-keywords" class="keyword-tags">
+                            <!-- Dynamically populated -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Items -->
+            <div class="glass-card">
+                <h3>✅ Action Items</h3>
+                <div id="action-items" class="action-items">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+
+            <!-- Overall Impression -->
+            <div class="glass-card">
+                <h3>📝 Overall Impression</h3>
+                <p id="overall-impression" class="overall-text">
+                    <!-- Dynamically populated -->
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <div class="logo">
+                    <span class="logo-icon">🎯</span>
+                    <span class="logo-text">GuideFY</span>
+                </div>
+                <p class="footer-text">AI-powered career guidance for students</p>
+            </div>
+            <div class="footer-right">
+                <p class="footer-credit">Made with ❤️ by Diploma Engineering Students</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="resume.js"></script>
+</body>
+
+</html>
