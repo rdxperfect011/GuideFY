@@ -26,7 +26,7 @@ dropZone.addEventListener('dragleave', () => {
 dropZone.addEventListener('drop', (e) => {
   e.preventDefault();
   dropZone.classList.remove('drag-over');
-  
+
   const files = e.dataTransfer.files;
   if (files.length > 0) {
     handleFileSelect(files[0]);
@@ -41,6 +41,10 @@ fileInput.addEventListener('change', (e) => {
 });
 
 // Handle file selection
+/**
+ * Validates and processes the selected file
+ * @param {File} file - The file object selected by user
+ */
 function handleFileSelect(file) {
   // Validate file type
   const allowedTypes = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword'];
@@ -56,11 +60,11 @@ function handleFileSelect(file) {
   }
 
   selectedFile = file;
-  
+
   // Update UI
   fileName.textContent = file.name;
   fileSize.textContent = formatFileSize(file.size);
-  
+
   dropZone.classList.add('hidden');
   filePreview.classList.remove('hidden');
 }
@@ -99,18 +103,18 @@ analyzeBtn.addEventListener('click', async () => {
     // Hide loading and upload section
     loading.classList.add('hidden');
     uploadSection.classList.add('hidden');
-    
+
     // Display results
     displayResults(data);
     resultsSection.classList.remove('hidden');
-    
+
     // Scroll to results
     resultsSection.scrollIntoView({ behavior: 'smooth' });
 
   } catch (error) {
     console.error('Error:', error);
     alert(error.message || 'Failed to analyze resume. Please try again.');
-    
+
     // Reset UI
     loading.classList.add('hidden');
     filePreview.classList.remove('hidden');
@@ -121,24 +125,28 @@ analyzeBtn.addEventListener('click', async () => {
 analyzeAnotherBtn.addEventListener('click', () => {
   selectedFile = null;
   fileInput.value = '';
-  
+
   resultsSection.classList.add('hidden');
   uploadSection.classList.remove('hidden');
   dropZone.classList.remove('hidden');
   filePreview.classList.add('hidden');
-  
+
   // Scroll to top
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 // Display results
+/**
+ * Renders the analysis results into the DOM
+ * @param {Object} data - The analysis data from backend
+ */
 function displayResults(data) {
   // ATS Score
   const atsScore = data.ats_score;
   const scoreCircle = document.getElementById('score-circle');
   const scoreNumber = document.getElementById('ats-score');
   const scoreDescription = document.getElementById('score-description');
-  
+
   // Animate score
   setTimeout(() => {
     scoreNumber.textContent = atsScore;
@@ -146,7 +154,7 @@ function displayResults(data) {
     const offset = circumference - (atsScore / 100) * circumference;
     scoreCircle.style.strokeDashoffset = offset;
   }, 100);
-  
+
   // Score description
   if (atsScore >= 80) {
     scoreDescription.textContent = 'Excellent! Your resume is highly optimized for ATS systems.';
@@ -157,7 +165,7 @@ function displayResults(data) {
   } else {
     scoreDescription.textContent = 'Needs improvement. Your resume may struggle with ATS systems.';
   }
-  
+
   // Add gradient definition for score circle
   if (!document.getElementById('scoreGradient')) {
     const svg = document.querySelector('.score-circle');
@@ -168,21 +176,21 @@ function displayResults(data) {
     gradient.setAttribute('y1', '0%');
     gradient.setAttribute('x2', '100%');
     gradient.setAttribute('y2', '100%');
-    
+
     const stop1 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
     stop1.setAttribute('offset', '0%');
-    stop1.setAttribute('style', 'stop-color:#8b5cf6;stop-opacity:1');
-    
+    stop1.setAttribute('style', 'stop-color:var(--accent-purple);stop-opacity:1');
+
     const stop2 = document.createElementNS('http://www.w3.org/2000/svg', 'stop');
     stop2.setAttribute('offset', '100%');
-    stop2.setAttribute('style', 'stop-color:#ec4899;stop-opacity:1');
-    
+    stop2.setAttribute('style', 'stop-color:var(--accent-pink);stop-opacity:1');
+
     gradient.appendChild(stop1);
     gradient.appendChild(stop2);
     defs.appendChild(gradient);
     svg.insertBefore(defs, svg.firstChild);
   }
-  
+
   // Strengths
   const strengthsList = document.getElementById('strengths-list');
   strengthsList.innerHTML = '';
@@ -192,7 +200,7 @@ function displayResults(data) {
     item.textContent = strength;
     strengthsList.appendChild(item);
   });
-  
+
   // Weaknesses
   const weaknessesList = document.getElementById('weaknesses-list');
   weaknessesList.innerHTML = '';
@@ -202,7 +210,7 @@ function displayResults(data) {
     item.textContent = weakness;
     weaknessesList.appendChild(item);
   });
-  
+
   // Technical Keywords
   const technicalKeywords = document.getElementById('technical-keywords');
   technicalKeywords.innerHTML = '';
@@ -216,7 +224,7 @@ function displayResults(data) {
   } else {
     technicalKeywords.innerHTML = '<p style="color: var(--text-tertiary);">No technical keywords found</p>';
   }
-  
+
   // Missing Keywords
   const missingKeywords = document.getElementById('missing-keywords');
   missingKeywords.innerHTML = '';
@@ -230,33 +238,38 @@ function displayResults(data) {
   } else {
     missingKeywords.innerHTML = '<p style="color: var(--text-tertiary);">No critical keywords missing</p>';
   }
-  
+
   // Action Items
   const actionItems = document.getElementById('action-items');
   actionItems.innerHTML = '';
   data.analysis.action_items.forEach(item => {
     const actionDiv = document.createElement('div');
     actionDiv.className = 'action-item';
-    
+
     const badge = document.createElement('span');
     badge.className = `priority-badge priority-${item.priority}`;
     badge.textContent = item.priority;
-    
+
     const text = document.createElement('div');
     text.className = 'action-text';
     text.textContent = item.item;
-    
+
     actionDiv.appendChild(badge);
     actionDiv.appendChild(text);
     actionItems.appendChild(actionDiv);
   });
-  
+
   // Overall Impression
   const overallImpression = document.getElementById('overall-impression');
   overallImpression.textContent = data.analysis.overall_impression;
 }
 
 // Utility function to format file size
+/**
+ * Formats bytes into readable string (KB, MB)
+ * @param {number} bytes - Size in bytes
+ * @returns {string} Formatted string
+ */
 function formatFileSize(bytes) {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;

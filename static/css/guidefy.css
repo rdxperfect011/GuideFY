@@ -11,22 +11,7 @@
     --glow-spread: 15px;
 }
 
-/* Hero */
-.hero {
-    text-align: center;
-    padding: 3rem 0;
-}
 
-.hero h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-}
-
-.hero p {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-}
 
 /* Back Link */
 .back-link {
@@ -88,38 +73,9 @@ form button {
     color: var(--text-secondary);
 }
 
-/* Target form inputs and textareas directly */
-form input[type="text"],
-form input[type="email"],
-form textarea {
-    width: 100%;
-    padding: 1.25rem;
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(0, 217, 255, 0.2);
-    border-radius: 4px;
-    color: var(--text-primary);
-    font-family: 'Courier New', monospace;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    box-shadow: inset 0 0 10px rgba(0, 217, 255, 0.05);
-}
 
-.tactical-label::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--neon-cyan);
-    transition: width 0.4s ease;
-    box-shadow: 0 0 10px var(--neon-cyan);
-    z-index: 2;
-}
 
-.tactical-label:focus-within::after {
-    width: 100%;
-}
+
 
 /* Target form inputs and textareas directly */
 form input[type="text"],
@@ -303,19 +259,49 @@ form button[type="submit"]:disabled,
     align-items: center;
     gap: 0.75rem;
     padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.status-success {
     background: rgba(16, 185, 129, 0.1);
     border: 1px solid rgba(16, 185, 129, 0.3);
-    border-radius: 50px;
     color: var(--accent-green);
-    font-weight: 600;
+}
+
+.status-warning {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: var(--accent-yellow);
+}
+
+.status-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: var(--accent-red);
 }
 
 .status-dot {
     width: 10px;
     height: 10px;
-    background: var(--accent-green);
     border-radius: 50%;
     animation: pulse 2s infinite;
+}
+
+.status-success .status-dot {
+    background: var(--accent-green);
+    box-shadow: 0 0 10px var(--accent-green);
+}
+
+.status-warning .status-dot {
+    background: var(--accent-yellow);
+    box-shadow: 0 0 10px var(--accent-yellow);
+}
+
+.status-error .status-dot {
+    background: var(--accent-red);
+    box-shadow: 0 0 10px var(--accent-red);
 }
 
 @keyframes pulse {
@@ -414,24 +400,7 @@ form button[type="submit"]:disabled,
     }
 }
 
-/* Tasks
-## Career Guidance Output Redesign
 
-- [x] Implementation
-  - [x] Add neon glow CSS effects
-  - [x] Create hero lightbulb section
-  - [x] Implement flowchart-style career cards
-  - [x] Add animated connecting lines
-  - [x] Create glowing course cards
-  - [x] Update JavaScript rendering
-  - [x] Add animated counter for score
-  - [x] Implement color-coded categories
-- [x] Verification
-  - [x] Test all animations
-  - [ ] Verify visual hierarchy
-  - [ ] Check responsive behavior
-  - [ ] Document changes
-*/
 
 /* Lightbulb Hero Section */
 .hero-lightbulb {
@@ -548,20 +517,7 @@ form button[type="submit"]:disabled,
     border-left: 4px solid var(--neon-pink) !important;
 }
 
-/* Video Grid Futuristic Styling */
-.video-card {
-    border: 1px solid rgba(139, 92, 246, 0.2);
-}
 
-.video-card:hover {
-    border-color: var(--neon-purple);
-    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
-}
-
-.video-platform {
-    background: rgba(139, 92, 246, 0.2);
-    box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
-}
 
 /* Results Section */
 .results-section {

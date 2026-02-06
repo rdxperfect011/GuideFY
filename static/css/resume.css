@@ -2,22 +2,7 @@
    RESUME ANALYZER PAGE SPECIFIC STYLES
    =========================== */
 
-/* Hero */
-.hero {
-    text-align: center;
-    padding: 3rem 0;
-}
 
-.hero h1 {
-    font-size: 2.5rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-}
-
-.hero p {
-    font-size: 1.1rem;
-    color: var(--text-secondary);
-}
 
 /* Upload Section */
 .upload-section {

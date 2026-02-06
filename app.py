@@ -1,11 +1,9 @@
 import os
-import json
+
 import io
 from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 import google.generativeai as genai
-import requests
-from werkzeug.utils import secure_filename
 
 from utils import (
     extract_json, 
@@ -19,7 +17,9 @@ from resume_utils import (
     extract_resume_text,
     preprocess_resume_text,
     analyze_resume_keywords,
-    calculate_ats_score
+    analyze_resume_keywords,
+    calculate_ats_score,
+    RESUME_ANALYSIS_PROMPT
 )
 
 # ENVIRONMENT & AI CONFIGURATION
@@ -29,6 +29,7 @@ load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 # Track AI system health for frontend indicator
+# This dictionary is served at /api-status to let the frontend know if the AI backend is ready.
 AI_STATUS = {
     "api_key_loaded": bool(GEMINI_API_KEY),
     "model_responded": False,
@@ -44,10 +45,11 @@ if GEMINI_API_KEY:
 app = Flask(__name__, static_folder="static", static_url_path="")
 
 # File upload configuration
-app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max file size limit
 ALLOWED_EXTENSIONS = {'pdf', 'docx', 'doc'}
 
 def allowed_file(filename):
+    """Checks if the uploaded file has a valid extension."""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Load the database once at startup
@@ -76,6 +78,11 @@ def api_status():
 
 @app.route("/career", methods=["POST"])
 def career():
+    """
+    Handles career recommendation requests.
+    Expected JSON payload: {"interests": "...", "career_goal": "..."}
+    Returns JSON with career path, courses, next steps, confidence score, and upskilling resources.
+    """
     data = request.get_json(force=True)
     user_text = f"{data.get('interests', '')} {data.get('career_goal', '')}"
 
@@ -85,6 +92,11 @@ You are a backend API.
 Return ONLY raw JSON.
 Give output in at least 20-30 words per field.
 The confidence_score.overall must be a number between 0 and 100 (percentage).
+Calculate the confidence score based on:
+1. Input Detail (30%): Higher if interests/goals are specific (e.g., "Python backend" > "coding").
+2. Alignment (40%): Higher if interests match the career goal.
+3. Feasibility (30%): Higher if the path is realistic.
+Return a precise integer (e.g., 87, 62, 95). Do NOT default to 65.
 Do Not use 1–5 or 1–10 scales.
 {{
   "careers":[{{"name":"","justification":""}}],
@@ -98,6 +110,8 @@ User interests: {data.get('interests')}
 Career goal: {data.get('career_goal')}
 """
         model = genai.GenerativeModel("models/gemini-2.0-flash")
+        
+        # Generate content using the configured Gemini model
         response = model.generate_content(prompt)
 
         AI_STATUS["model_responded"] = True
@@ -111,6 +125,7 @@ Career goal: {data.get('career_goal')}
         return jsonify({"recommendation": normalize_output(raw, user_text, UPSKILL_DB)})
 
     except Exception as e:
+        # In case of any AI failure or parsing error, log it and return the fallback response
         print("❌ AI ERROR:", e)
         AI_STATUS["model_parsed"] = False
         AI_STATUS["last_error"] = str(e)
@@ -154,29 +169,7 @@ def resume_analyze():
         ats_score = calculate_ats_score(clean_text, keywords)
         
         # Get AI analysis
-        prompt = f"""
-You are an expert resume reviewer and career coach.
-Analyze the following resume and provide detailed feedback in JSON format.
-
-Resume Content:
-{clean_text[:3000]}  # Limit to first 3000 chars
-
-Provide analysis in this EXACT JSON format:
-{{
-  "strengths": ["strength 1", "strength 2", "strength 3"],
-  "weaknesses": ["weakness 1", "weakness 2", "weakness 3"],
-  "missing_keywords": ["keyword 1", "keyword 2", "keyword 3"],
-  "formatting_feedback": "Brief feedback on structure and formatting",
-  "action_items": [
-    {{"priority": "high", "item": "specific action"}},
-    {{"priority": "medium", "item": "specific action"}},
-    {{"priority": "low", "item": "specific action"}}
-  ],
-  "overall_impression": "Brief overall assessment"
-}}
-
-Be specific, actionable, and constructive.
-"""
+        prompt = RESUME_ANALYSIS_PROMPT.format(resume_text=clean_text[:3000])
         
         model = genai.GenerativeModel("models/gemini-2.0-flash")
         response = model.generate_content(prompt)
@@ -194,6 +187,7 @@ Be specific, actionable, and constructive.
         return jsonify(result)
         
     except ValueError as e:
+        print("❌ Resume Validation Error:", e)
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         print("❌ Resume Analysis Error:", e)

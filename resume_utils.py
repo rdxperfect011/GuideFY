@@ -3,9 +3,9 @@ Resume utilities for text extraction and processing.
 Supports PDF and DOCX file formats.
 """
 
-import io
+
 import re
-from typing import Dict, Optional
+from typing import Dict
 
 try:
     from PyPDF2 import PdfReader
@@ -16,6 +16,31 @@ try:
     from docx import Document
 except ImportError:
     Document = None
+
+
+RESUME_ANALYSIS_PROMPT = """
+You are an expert resume reviewer and career coach.
+Analyze the following resume and provide detailed feedback in JSON format.
+
+Resume Content:
+{resume_text}
+
+Provide analysis in this EXACT JSON format:
+{{
+  "strengths": ["strength 1", "strength 2", "strength 3"],
+  "weaknesses": ["weakness 1", "weakness 2", "weakness 3"],
+  "missing_keywords": ["keyword 1", "keyword 2", "keyword 3"],
+  "formatting_feedback": "Brief feedback on structure and formatting",
+  "action_items": [
+    {{"priority": "high", "item": "specific action"}},
+    {{"priority": "medium", "item": "specific action"}},
+    {{"priority": "low", "item": "specific action"}}
+  ],
+  "overall_impression": "Brief overall assessment"
+}}
+
+Be specific, actionable, and constructive.
+"""
 
 
 def extract_text_from_pdf(file_stream) -> str:
@@ -99,10 +124,11 @@ def preprocess_resume_text(text: str) -> str:
     Returns:
         Cleaned text
     """
-    # Remove extra whitespace
+    # Remove extra whitespace (multiple spaces to single space)
     text = re.sub(r'\s+', ' ', text)
     
-    # Remove special characters but keep punctuation
+    # Remove special characters but keep punctuation necessary for sentence structure
+    # Keeps: alphanumerics, spaces, ., ;, :, (), -, @, +, #
     text = re.sub(r'[^\w\s.,;:()\-@+#]', '', text)
     
     return text.strip()
@@ -160,8 +186,10 @@ def calculate_ats_score(text: str, keywords: Dict[str, list]) -> int:
     score = 0
     
     # Check for contact information (email, phone)
+    # Email pattern: standard user@domain.com format
     if re.search(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', text):
         score += 10
+    # Phone pattern: 10 digits or standard xxx-xxx-xxxx formats
     if re.search(r'\b\d{10}\b|\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b', text):
         score += 10
     
@@ -172,6 +200,7 @@ def calculate_ats_score(text: str, keywords: Dict[str, list]) -> int:
             score += 5
     
     # Check for keywords
+    # Awards points based on the density of relevant keywords found
     total_keywords = sum(len(v) for v in keywords.values())
     if total_keywords >= 10:
         score += 30
@@ -181,6 +210,7 @@ def calculate_ats_score(text: str, keywords: Dict[str, list]) -> int:
         score += 10
     
     # Check for action verbs
+    # Strong resumes use action verbs (e.g., "developed", "led")
     if len(keywords.get('action_verbs', [])) >= 5:
         score += 15
     elif len(keywords.get('action_verbs', [])) >= 3:
@@ -189,6 +219,7 @@ def calculate_ats_score(text: str, keywords: Dict[str, list]) -> int:
         score += 5
     
     # Check for quantifiable achievements (numbers)
+    # Looks for percentages, "X+", or "Xx" (e.g., "10x growth") to indicate measurable impact
     numbers = re.findall(r'\b\d+%|\b\d+\+|\b\d+x\b', text)
     if len(numbers) >= 3:
         score += 10

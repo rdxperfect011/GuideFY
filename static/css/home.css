@@ -2,15 +2,7 @@
    HOME PAGE SPECIFIC STYLES
    =========================== */
 
-/* Additional orb for homepage */
-.orb-3 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, var(--accent-blue), transparent);
-  bottom: -100px;
-  left: 30%;
-  animation-delay: 10s;
-}
+
 
 /* Navbar specific to homepage */
 .nav-link::after {
@@ -144,15 +136,15 @@
 }
 
 .dot-red {
-  background: #ef4444;
+  background: var(--accent-red);
 }
 
 .dot-yellow {
-  background: #f59e0b;
+  background: var(--accent-yellow);
 }
 
 .dot-green {
-  background: #10b981;
+  background: var(--accent-green);
 }
 
 .card-title {
@@ -182,6 +174,7 @@
 
 .progress-fill {
   height: 100%;
+  width: var(--progress);
   background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
   border-radius: 10px;
   animation: progressLoad 1.5s ease-out;

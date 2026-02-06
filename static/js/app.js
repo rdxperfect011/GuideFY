@@ -14,6 +14,20 @@ function cleanText(text) {
 }
 // AI STATUS INDICATOR
 /**
+ * Helper to render styled status
+ * @param {string} type - 'success', 'warning', or 'error'
+ * @param {string} message - Text to display
+ */
+function renderStatus(type, message) {
+  statusBox.innerHTML = `
+        <div class="status-indicator status-${type}">
+            <div class="status-dot"></div>
+            <span>${message}</span>
+        </div>
+    `;
+}
+
+/**
  * Fetches AI health status from backend
  * Updates indicator color and text
  */
@@ -23,19 +37,19 @@ async function updateStatus() {
     const status = await res.json();
 
     if (status.model_responded && status.model_parsed) {
-      statusBox.innerHTML = "🟢 AI System: Online";
+      renderStatus("success", "AI System: Online");
     }
     else if (status.model_responded && !status.model_parsed) {
-      statusBox.innerHTML = "🟡 AI System: Online (Fallback Active)";
+      renderStatus("warning", "AI System: Online (Fallback Active)");
     }
     else if (status.api_key_loaded) {
-      statusBox.innerHTML = "🟡 AI System: Ready";
+      renderStatus("warning", "AI System: Ready");
     }
     else {
-      statusBox.innerHTML = "🔴 AI System: API Key Missing";
+      renderStatus("error", "AI System: API Key Missing");
     }
   } catch (error) {
-    statusBox.innerHTML = "🔴 AI System: Offline";
+    renderStatus("error", "AI System: Offline");
   }
 }
 
@@ -230,23 +244,60 @@ function animateValue(id, start, end, duration) {
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  // Show simplified loading state
-  statusBox.innerHTML = "🟡 AI System: Processing...";
+  // Show Neural Analysis loading state
+  renderStatus("warning", "AI System: Processing...");
 
   recText.innerHTML = `
-    <div class="loading">
-      <div class="spinner"></div>
-      <p>💡 Synthesizing your future...</p>
+    <div class="loading-tactical">
+        <div class="neural-visual">
+            <div class="neural-ring neural-ring-1"></div>
+            <div class="neural-ring neural-ring-2"></div>
+            <div class="neural-core"></div>
+        </div>
+        <div class="loading-text-cycling" id="loading-text">INITIALIZING NEURAL LINK...</div>
+        <div class="progress-container">
+            <div class="progress-bar-fill" id="progress-fill"></div>
+        </div>
+        <p class="progress-percentage" id="progress-text">AI MODEL PROCESSING</p>
     </div>
   `;
   result.classList.remove("hidden");
   result.scrollIntoView({ behavior: 'smooth' });
 
+  // Simulate progress bar
+  const progressBar = document.getElementById("progress-fill");
+  const loadingText = document.getElementById("loading-text");
+  const progressText = document.getElementById("progress-text");
+
+  let progress = 0;
+  const messages = [
+    "DIAGNOSING CAREER TRAJECTORY...",
+    "ANALYZING SKILL VECTORS...",
+    "SYNTHESIZING MARKET DATA...",
+    "CALCULATING SUCCESS PROBABILITY...",
+    "GENERATING OPTIMAL PATHWAYS..."
+  ];
+
+  const progressInterval = setInterval(() => {
+    if (progress < 90) {
+      progress += Math.random() * 5;
+      if (progress > 90) progress = 90;
+
+      if (progressBar) progressBar.style.width = `${progress}%`;
+
+      // Cycle text based on progress chunk
+      if (loadingText) {
+        const msgIndex = Math.floor((progress / 100) * messages.length);
+        loadingText.innerText = messages[msgIndex] || messages[messages.length - 1];
+      }
+    }
+  }, 200);
+
   const payload = {
-    interests: interests.value,
-    strengths: strengths.value,
-    preferred_subjects: preferred_subjects.value,
-    career_goal: career_goal.value
+    interests: document.getElementById("interests").value,
+    strengths: document.getElementById("strengths").value,
+    preferred_subjects: document.getElementById("preferred_subjects").value,
+    career_goal: document.getElementById("career_goal").value
   };
 
   try {
@@ -257,10 +308,20 @@ form.addEventListener("submit", async (e) => {
     });
 
     const json = await res.json();
-    showRecommendation(json.recommendation);
+
+    // Complete the bar before showing results
+    clearInterval(progressInterval);
+    if (progressBar) progressBar.style.width = "100%";
+    if (loadingText) loadingText.innerText = "COMPLETE";
+
+    setTimeout(() => {
+      showRecommendation(json.recommendation);
+    }, 500); // Short delay to let user see 100%
 
   } catch (error) {
+    clearInterval(progressInterval);
     recText.innerHTML = "❌ Failed to load recommendations.";
-    statusBox.innerHTML = "🔴 AI System: Offline";
+    renderStatus("error", "AI System: Offline");
+    console.error(error);
   }
 });

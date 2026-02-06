@@ -17,6 +17,7 @@
   <div class="background">
     <div class="gradient-orb orb-1"></div>
     <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
   </div>
 
   <nav class="navbar">
@@ -29,11 +30,14 @@
     </div>
   </nav>
 
-  <div id="status" class="ai-status">
-    🔴 AI System: Initializing...
-  </div>
-
   <main class="container">
+    <div id="status" class="ai-status">
+      <div class="status-indicator status-warning">
+        <div class="status-dot"></div>
+        <span>AI System: Initializing...</span>
+      </div>
+    </div>
+
     <div class="hero">
       <h1>🎯 Career Guidance Tool</h1>
       <p>Get personalized career advice based on your interests and strengths</p>
@@ -41,7 +45,7 @@
 
     <div class="card glass-card">
       <form id="career-form" class="form">
-        <h2 style="grid-column: span 2; margin-bottom: 1rem;">🧭 Tell Us About Yourself</h2>
+        <h2>🧭 Tell Us About Yourself</h2>
 
         <label>
           Name
@@ -53,12 +57,12 @@
           <input type="email" id="email" placeholder="student@example.com" />
         </label>
 
-        <label style="grid-column: span 2;">
+        <label class="form-full-width">
           Interests
           <textarea id="interests" placeholder="e.g., Web dev, AI, Networking" required></textarea>
         </label>
 
-        <label style="grid-column: span 2;">
+        <label class="form-full-width">
           Strengths / Skills
           <textarea id="strengths" placeholder="e.g., problem solving, creativity"></textarea>
         </label>
@@ -73,7 +77,7 @@
           <input type="text" id="career_goal" placeholder="e.g., become a software engineer" />
         </label>
 
-        <button type="submit" class="btn-submit" style="grid-column: span 2;">🚀 Get Recommendations</button>
+        <button type="submit" class="btn-submit">🚀 Get Recommendations</button>
       </form>
 
       <section id="result" class="hidden result">

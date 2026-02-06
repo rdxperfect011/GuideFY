@@ -1,13 +1,21 @@
 import os
 import json
 import requests
+from typing import List, Dict, Any, Optional
 
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
-def fetch_youtube_videos(query, max_results=3):
+def fetch_youtube_videos(query: str, max_results: int = 3) -> List[Dict[str, str]]:
     """
     Fetches relevant YouTube videos using YouTube Data API.
-    Returns clean, usable video data.
+    
+    Args:
+        query (str): The search query for YouTube.
+        max_results (int): Maximum number of videos to return. Default is 3.
+
+    Returns:
+        list: A list of dictionaries, each containing video platform, url, thumbnail, and explanation.
+              Returns an empty list if API key is missing or an error occurs.
     """
     if not YOUTUBE_API_KEY:
         return []
@@ -30,7 +38,7 @@ def fetch_youtube_videos(query, max_results=3):
         for item in data.get("items", []):
             title = item["snippet"]["title"].lower()
 
-            # simple filtering
+            # Filter out shorts and entertainment content to ensure educational relevance
             if any(x in title for x in ["shorts", "funny", "meme"]):
                 continue
 
@@ -48,10 +56,19 @@ def fetch_youtube_videos(query, max_results=3):
         print("❌ YouTube API Error:", e)
         return []
 
-def extract_json(text):
+def extract_json(text: str) -> Dict[str, Any]:
     """
     Extracts and parses JSON from AI response text.
-    Handles cases where AI adds extra text or code blocks.
+    Handles cases where AI adds extra text or code blocks (markdown formatting).
+
+    Args:
+        text (str): The raw text response from the AI model.
+
+    Returns:
+        dict: The parsed JSON object.
+
+    Raises:
+        ValueError: If no valid JSON object is found in the text.
     """
     # Clean up markdown code blocks if present
     text = text.strip()
@@ -69,7 +86,7 @@ def extract_json(text):
 
     return json.loads(text[start:end])
 
-def detect_field(text):
+def detect_field(text: str) -> str:
     """
     Detects the career field based on keywords in the provided text.
     """
@@ -92,10 +109,14 @@ def detect_field(text):
 
     return "generic"
 
-def load_upskill_db():
+def load_upskill_db() -> Dict[str, Any]:
     """
     Loads the upskill database from the JSON file.
+    
+    Returns:
+        dict: The loaded database content, or an empty dict if loading fails.
     """
+    # Get the absolute path to the data directory relative to this file
     base_path = os.path.dirname(os.path.abspath(__file__))
     file_path = os.path.join(base_path, "data", "upskill_db.json")
     try:
@@ -105,10 +126,17 @@ def load_upskill_db():
         print(f"❌ Error loading UPSKILL_DB: {e}")
         return {}
 
-def build_upskill(user_text, db=None):
+def build_upskill(user_text: str, db: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Builds the upskill section of the response by selecting the appropriate field
     from the database and optionally fetching YouTube videos.
+    
+    Args:
+        user_text (str): The user's input text (interests + career goal).
+        db (dict, optional): The upskill database. Loads from disk if None.
+
+    Returns:
+        dict: A dictionary containing upskilling resources (roadmap, videos, etc).
     """
     if db is None:
         db = load_upskill_db()
@@ -137,12 +165,12 @@ def build_upskill(user_text, db=None):
     if yt_videos:
         base["videos"] = yt_videos
     else:
-        # Safety: keep static curated videos from DB (already in 'base')
+        # Fallback: keep static curated videos from DB (already in 'base') if YOUTUBE_API_KEY is missing or quota exceeded
         base["videos"] = base.get("videos", [])[:3]
 
     return base
 
-def normalize_output(raw, user_text, db=None):
+def normalize_output(raw: Dict[str, Any], user_text: str, db: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Ensures consistent API response format.
     """
@@ -155,7 +183,7 @@ def normalize_output(raw, user_text, db=None):
         "upskill": build_upskill(user_text, db)
     }
 
-def fallback_response():
+def fallback_response() -> Dict[str, Any]:
     """
     Used when AI fails. Guarantees meaningful output.
     """
