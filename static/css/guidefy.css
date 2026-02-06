@@ -1,0 +1,808 @@
+/* ===========================
+   GUIDEFY TOOL PAGE SPECIFIC STYLES
+   Futuristic / Neon Redesign
+   =========================== */
+
+:root {
+    --neon-cyan: #00d9ff;
+    --neon-purple: #8b5cf6;
+    --neon-pink: #ff6b9d;
+    --neon-yellow: #ffd700;
+    --glow-spread: 15px;
+}
+
+/* Hero */
+.hero {
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.hero h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+}
+
+/* Back Link */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: color 0.3s ease;
+}
+
+.back-link:hover {
+    color: var(--text-primary);
+}
+
+/* Form Section */
+.form-section {
+    margin-bottom: 3rem;
+}
+
+.form-card {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Form Layout */
+form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+form h2 {
+    grid-column: span 2;
+    margin-bottom: 1rem;
+}
+
+form label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+form button {
+    grid-column: span 2;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+/* Target form inputs and textareas directly */
+form input[type="text"],
+form input[type="email"],
+form textarea {
+    width: 100%;
+    padding: 1.25rem;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(0, 217, 255, 0.2);
+    border-radius: 4px;
+    color: var(--text-primary);
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 0 10px rgba(0, 217, 255, 0.05);
+}
+
+.tactical-label::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--neon-cyan);
+    transition: width 0.4s ease;
+    box-shadow: 0 0 10px var(--neon-cyan);
+    z-index: 2;
+}
+
+.tactical-label:focus-within::after {
+    width: 100%;
+}
+
+/* Target form inputs and textareas directly */
+form input[type="text"],
+form input[type="email"],
+form textarea {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+form input[type="text"]:focus,
+form input[type="email"]:focus,
+form textarea:focus {
+    outline: none;
+    border-color: var(--accent-purple);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* Submit button */
+form button[type="submit"],
+.btn-submit,
+.submit-btn {
+    width: 100%;
+    padding: 1rem 2rem;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+}
+
+form button[type="submit"]:hover,
+.btn-submit:hover,
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4);
+}
+
+form button[type="submit"]:disabled,
+.btn-submit:disabled,
+.submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Neural Analysis Loading State */
+.loading-tactical {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.neural-visual {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 2.5rem;
+    position: relative;
+}
+
+.neural-core {
+    width: 60px;
+    height: 60px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 50px var(--neon-cyan);
+    animation: neural-pulse-core 1.5s ease-in-out infinite;
+}
+
+.neural-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 2px solid var(--neon-cyan);
+    border-radius: 50%;
+    opacity: 0.3;
+}
+
+.neural-ring-1 {
+    animation: ring-spin 4s linear infinite;
+    border-top-color: transparent;
+}
+
+.neural-ring-2 {
+    animation: ring-spin 6s linear reverse infinite;
+    border-bottom-color: transparent;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+@keyframes ring-spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes neural-pulse-core {
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.7;
+    }
+}
+
+.loading-text-cycling {
+    font-family: 'Courier New', monospace;
+    font-size: 1.2rem;
+    color: var(--neon-cyan);
+    margin: 2rem 0;
+    height: 1.5em;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--neon-cyan);
+}
+
+.progress-container {
+    width: 100%;
+    max-width: 500px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 217, 255, 0.2);
+    margin: 0 auto;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, var(--neon-cyan), var(--neon-purple));
+    box-shadow: 0 0 15px var(--neon-cyan);
+    transition: width 0.1s linear;
+}
+
+.progress-percentage {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    margin-top: 10px;
+    letter-spacing: 2px;
+}
+
+/* AI Status */
+.ai-status {
+    text-align: center;
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1.5rem;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 50px;
+    color: var(--accent-green);
+    font-weight: 600;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--accent-green);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Futuristic Animations */
+@keyframes neon-pulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 5px var(--neon-cyan), 0 0 10px var(--neon-cyan);
+    }
+
+    50% {
+        box-shadow: 0 0 15px var(--neon-cyan), 0 0 30px var(--neon-cyan);
+    }
+}
+
+/* Results Reveal Animation */
+.reveal-animation {
+    animation: reveal-sequence 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+@keyframes reveal-sequence {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.cascading-reveal>* {
+    opacity: 0;
+    animation: reveal-sequence 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.cascading-reveal>*:nth-child(1) {
+    animation-delay: 0.1s;
+}
+
+.cascading-reveal>*:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.cascading-reveal>*:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.cascading-reveal>*:nth-child(4) {
+    animation-delay: 0.4s;
+}
+
+.cascading-reveal>*:nth-child(5) {
+    animation-delay: 0.5s;
+}
+
+@keyframes line-flow {
+    0% {
+        stroke-dashoffset: 100;
+        opacity: 0.3;
+    }
+
+    50% {
+        opacity: 1;
+    }
+
+    100% {
+        stroke-dashoffset: 0;
+        opacity: 0.3;
+    }
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Tasks
+## Career Guidance Output Redesign
+
+- [x] Implementation
+  - [x] Add neon glow CSS effects
+  - [x] Create hero lightbulb section
+  - [x] Implement flowchart-style career cards
+  - [x] Add animated connecting lines
+  - [x] Create glowing course cards
+  - [x] Update JavaScript rendering
+  - [x] Add animated counter for score
+  - [x] Implement color-coded categories
+- [x] Verification
+  - [x] Test all animations
+  - [ ] Verify visual hierarchy
+  - [ ] Check responsive behavior
+  - [ ] Document changes
+*/
+
+/* Lightbulb Hero Section */
+.hero-lightbulb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    margin-bottom: 3rem;
+    position: relative;
+    background: radial-gradient(circle at center, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+}
+
+.lightbulb-container {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 1.5rem;
+    animation: float 4s ease-in-out infinite;
+}
+
+.lightbulb-svg {
+    width: 100%;
+    height: 100%;
+    fill: var(--neon-yellow);
+    filter: drop-shadow(0 0 15px var(--neon-yellow));
+    animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.score-display {
+    text-align: center;
+}
+
+.score-percentage {
+    font-size: 4.5rem;
+    font-weight: 900;
+    background: linear-gradient(to bottom, #fff, var(--neon-yellow));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+    line-height: 1;
+}
+
+.score-label {
+    font-size: 1.1rem;
+    color: var(--neon-yellow);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 0.5rem;
+}
+
+/* Flowchart Connectors */
+.flow-connector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 60px;
+    margin: -1rem 0;
+    z-index: 1;
+}
+
+.connector-line {
+    width: 2px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--neon-cyan), var(--neon-purple));
+    box-shadow: 0 0 10px var(--neon-cyan);
+    position: relative;
+}
+
+.connector-arrow {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 10px solid var(--neon-purple);
+    filter: drop-shadow(0 0 5px var(--neon-purple));
+}
+
+/* Futuristic Card Adjustments */
+.glass-card {
+    border: 1px solid rgba(0, 217, 255, 0.2) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8), inset 0 0 10px rgba(0, 217, 255, 0.1) !important;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.glass-card:hover {
+    border-color: var(--neon-cyan) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 217, 255, 0.3) !important;
+    transform: translateY(-5px) scale(1.01);
+}
+
+.results-section .glass-card h3 {
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    border-bottom: 2px solid rgba(0, 217, 255, 0.2);
+    padding-bottom: 0.75rem;
+    margin-bottom: 2rem;
+}
+
+/* Category Specific Colors */
+.card-tech {
+    border-left: 4px solid var(--neon-cyan) !important;
+}
+
+.card-business {
+    border-left: 4px solid var(--neon-purple) !important;
+}
+
+.card-creative {
+    border-left: 4px solid var(--neon-pink) !important;
+}
+
+/* Video Grid Futuristic Styling */
+.video-card {
+    border: 1px solid rgba(139, 92, 246, 0.2);
+}
+
+.video-card:hover {
+    border-color: var(--neon-purple);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.video-platform {
+    background: rgba(139, 92, 246, 0.2);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+}
+
+/* Results Section */
+.results-section {
+    margin-top: 3rem;
+}
+
+.results-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.results-header h2 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.section {
+    margin-bottom: 3rem;
+}
+
+.section h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Career Cards */
+.career-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.career-card {
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 3px solid var(--accent-purple);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.career-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+}
+
+.career-card h4 {
+    font-size: 1.25rem;
+    margin-bottom: 0.75rem;
+    color: var(--accent-purple);
+}
+
+.career-card p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Course List */
+.course-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.course-item {
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.course-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.course-item h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.course-item p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Steps List */
+.steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.step-item {
+    display: flex;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+}
+
+.step-number {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.step-content h4 {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.step-content p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+/* Score Card */
+.score-card {
+    text-align: center;
+    padding: 2rem;
+}
+
+.score-value {
+    font-size: 4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 1rem 0;
+}
+
+.score-explanation {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Skills List */
+.skills-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.skill-tag {
+    padding: 0.5rem 1rem;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 20px;
+    color: var(--accent-red);
+    font-size: 0.9rem;
+}
+
+/* Upskill Section */
+.upskill-header {
+    margin-bottom: 1rem;
+}
+
+.upskill-title {
+    font-size: 1.75rem;
+    margin-bottom: 0.5rem;
+}
+
+.upskill-description {
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.video-card {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.video-thumbnail {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+}
+
+.video-info {
+    padding: 1rem;
+}
+
+.video-platform {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(139, 92, 246, 0.2);
+    border-radius: 12px;
+    font-size: 0.75rem;
+    color: var(--accent-purple);
+    margin-bottom: 0.75rem;
+}
+
+.video-explanation {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .career-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .video-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .score-value {
+        font-size: 3rem;
+    }
+}

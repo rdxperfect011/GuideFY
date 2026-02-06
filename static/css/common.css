@@ -226,10 +226,11 @@ body {
     border-top: 1px solid var(--glass-border);
     padding: 3rem 0;
     margin-top: 4rem;
+    background: rgba(0, 0, 0, 0.2);
 }
 
 .footer-content {
-    max-width: 1400px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
     display: flex;
@@ -240,10 +241,13 @@ body {
 .footer-text {
     color: var(--text-tertiary);
     margin-top: 0.5rem;
+    font-size: 0.9rem;
 }
 
 .footer-credit {
-    color: var(--text-tertiary);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
 }
 
 /* Utility Classes */

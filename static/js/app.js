@@ -99,22 +99,50 @@ function renderUpskill(u) {
 }
 // MAIN RESULT RENDER
 /**
- * Renders full recommendation output
+ * Renders full recommendation output with futuristic tech design
  */
 function showRecommendation(data) {
   updateStatus(); // refresh AI indicator after response
 
   const score = Math.round(data?.confidence_score?.overall || 0);
 
-  // Careers section with career-grid
-  const careersHTML = (data.careers || []).map(c => `
-    <div class="career-card">
-      <h4>${cleanText(c.name)}</h4>
-      <p>${cleanText(c.justification)}</p>
+  // LIGHTBULB HERO SECTION
+  const heroHTML = `
+    <div class="hero-lightbulb">
+      <div class="lightbulb-container">
+        <svg class="lightbulb-svg" viewBox="0 0 24 24">
+          <path d="M9,21A1,1 0 0,0 10,22H14A1,1 0 0,0 15,21V20H9V21M12,2A7,7 0 0,0 5,9C5,11.38 6.19,13.47 8,14.74V17A1,1 0 0,0 9,18H15A1,1 0 0,0 16,17V14.74C17.81,13.47 19,11.38 19,9A7,7 0 0,0 12,2Z" />
+        </svg>
+      </div>
+      <div class="score-display">
+        <div class="score-percentage" id="animated-score">0%</div>
+        <div class="score-label">Career Potential Illuminated</div>
+        <p class="score-explanation">${cleanText(data?.confidence_score?.explanation)}</p>
+      </div>
     </div>
-  `).join("");
+  `;
 
-  // Courses section with course-list
+  // FLOW CONNECTOR COMPONENT
+  const connector = `
+    <div class="flow-connector">
+      <div class="connector-line">
+        <div class="connector-arrow"></div>
+      </div>
+    </div>
+  `;
+
+  // CAREERS FLOW SECTION
+  const careersHTML = (data.careers || []).map((c, i) => {
+    const category = i % 3 === 0 ? 'tech' : (i % 3 === 1 ? 'business' : 'creative');
+    return `
+      <div class="career-card card-${category}">
+        <h4>${cleanText(c.name)}</h4>
+        <p>${cleanText(c.justification)}</p>
+      </div>
+    `;
+  }).join("");
+
+  // COURSES SECTION
   const coursesHTML = (data.courses || []).map(c => `
     <div class="course-item">
       <h4>${cleanText(c.name)}</h4>
@@ -122,7 +150,7 @@ function showRecommendation(data) {
     </div>
   `).join("");
 
-  // Next steps with steps-list
+  // NEXT STEPS
   const stepsHTML = (data.next_steps || []).map((n, index) => `
     <div class="step-item">
       <div class="step-number">${index + 1}</div>
@@ -134,13 +162,19 @@ function showRecommendation(data) {
   `).join("");
 
   recText.innerHTML = `
-    <div class="results-section">
+    <div class="results-section reveal-animation cascading-reveal">
+      ${heroHTML}
+      
+      ${connector}
+
       <div class="glass-card">
-        <h3>🚀 Recommended Careers</h3>
+        <h3>🚀 Career Pathways</h3>
         <div class="career-grid">
           ${careersHTML || "<p>No career recommendations available</p>"}
         </div>
       </div>
+
+      ${connector}
 
       <div class="glass-card">
         <h3>📚 Recommended Courses</h3>
@@ -149,18 +183,16 @@ function showRecommendation(data) {
         </div>
       </div>
 
+      ${connector}
+
       <div class="glass-card">
-        <h3>👣 Next Steps</h3>
+        <h3>👣 Strategy & Next Steps</h3>
         <div class="steps-list">
           ${stepsHTML || "<p>No steps available</p>"}
         </div>
       </div>
 
-      <div class="glass-card score-card">
-        <h3>📊 Career Confidence Score</h3>
-        <div class="score-value">${score}%</div>
-        <p class="score-explanation">${cleanText(data?.confidence_score?.explanation)}</p>
-      </div>
+      ${connector}
 
       <div class="glass-card">
         <h3>🔥 Upskill (Recommended Learning)</h3>
@@ -168,16 +200,47 @@ function showRecommendation(data) {
       </div>
     </div>
   `;
+
+  // ANIMATE SCORE COUNTER
+  animateValue("animated-score", 0, score, 2000);
+}
+
+/**
+ * Utility to animate counter values
+ */
+function animateValue(id, start, end, duration) {
+  const obj = document.getElementById(id);
+  if (!obj) return;
+
+  const range = end - start;
+  let current = start;
+  const increment = end > start ? 1 : -1;
+  const stepTime = Math.abs(Math.floor(duration / range));
+
+  const timer = setInterval(() => {
+    current += increment;
+    obj.innerHTML = current + "%";
+    if (current == end) {
+      clearInterval(timer);
+    }
+  }, stepTime);
 }
 
 // FORM SUBMISSION HANDLER
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  // Show loading state
+  // Show simplified loading state
   statusBox.innerHTML = "🟡 AI System: Processing...";
-  recText.innerHTML = "⏳ Generating recommendations...";
+
+  recText.innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>💡 Synthesizing your future...</p>
+    </div>
+  `;
   result.classList.remove("hidden");
+  result.scrollIntoView({ behavior: 'smooth' });
 
   const payload = {
     interests: interests.value,
