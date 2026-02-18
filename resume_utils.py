@@ -2,8 +2,6 @@
 Resume utilities for text extraction and processing.
 Supports PDF and DOCX file formats.
 """
-
-
 import re
 from typing import Dict
 
