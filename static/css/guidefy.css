@@ -735,6 +735,15 @@ form button[type="submit"]:disabled,
         font-size: 2rem;
     }
 
+    form {
+        grid-template-columns: 1fr;
+    }
+
+    form h2,
+    form button {
+        grid-column: span 1;
+    }
+
     .career-grid {
         grid-template-columns: 1fr;
     }
