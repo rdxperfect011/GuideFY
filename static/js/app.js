@@ -267,7 +267,6 @@ form.addEventListener("submit", async (e) => {
   // Simulate progress bar
   const progressBar = document.getElementById("progress-fill");
   const loadingText = document.getElementById("loading-text");
-  const progressText = document.getElementById("progress-text");
 
   let progress = 0;
   const messages = [

@@ -17,7 +17,6 @@ from resume_utils import (
     extract_resume_text,
     preprocess_resume_text,
     analyze_resume_keywords,
-    analyze_resume_keywords,
     calculate_ats_score,
     RESUME_ANALYSIS_PROMPT
 )
@@ -42,7 +41,8 @@ if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 
 # Initialize Flask app
-app = Flask(__name__, static_folder="static", static_url_path="")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app = Flask(__name__, static_folder=os.path.join(BASE_DIR, "static"), static_url_path="")
 
 # File upload configuration
 app.config['MAX_CONTENT_LENGTH'] = 10 * 1024 * 1024  # 10MB max file size limit
@@ -58,17 +58,18 @@ UPSKILL_DB = load_upskill_db()
 # ROUTES
 @app.route("/")
 def index():
-    return send_from_directory("static", "home.html")
+    return send_from_directory(app.static_folder, "home.html")
 
 
 @app.route("/guidefy")
 def guidefy():
-    return send_from_directory("static", "guidefy.html")
+    return send_from_directory(app.static_folder, "guidefy.html")
 
 
 @app.route("/resume")
 def resume():
-    return send_from_directory("static", "resume.html")
+    return send_from_directory(app.static_folder, "resume.html")
+
 
 
 @app.route("/api-status")
@@ -90,7 +91,7 @@ def career():
         prompt = f"""
 You are a backend API.
 Return ONLY raw JSON.
-Give output in at least 20-30 words per field.
+Give output in at least 30-40 words per field.
 The confidence_score.overall must be a number between 0 and 100 (percentage).
 Calculate the confidence score based on:
 1. Input Detail (30%): Higher if interests/goals are specific (e.g., "Python backend" > "coding").
