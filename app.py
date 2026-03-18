@@ -1,9 +1,9 @@
 import os
-
 import io
 from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 from utils import (
     extract_json, 
@@ -39,7 +39,7 @@ AI_STATUS = {
 
 # Configure Gemini only if API key is available
 if GEMINI_API_KEY:
-    genai.configure(api_key=GEMINI_API_KEY)
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
 # Initialize Flask app
 app = Flask(__name__, static_folder="static", static_url_path="")
@@ -109,10 +109,11 @@ Do Not use 1–5 or 1–10 scales.
 User interests: {data.get('interests')}
 Career goal: {data.get('career_goal')}
 """
-        model = genai.GenerativeModel("models/gemini-2.0-flash")
-        
         # Generate content using the configured Gemini model
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
 
         AI_STATUS["model_responded"] = True
 
@@ -171,8 +172,10 @@ def resume_analyze():
         # Get AI analysis
         prompt = RESUME_ANALYSIS_PROMPT.format(resume_text=clean_text[:3000])
         
-        model = genai.GenerativeModel("models/gemini-2.0-flash")
-        response = model.generate_content(prompt)
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt
+        )
         
         text = response.text if hasattr(response, "text") else response.candidates[0].content.parts[0].text
         ai_analysis = extract_json(text)
