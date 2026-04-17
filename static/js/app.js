@@ -421,3 +421,43 @@ form.addEventListener("submit", async (e) => {
     console.error(error);
   }
 });
+
+// EXAMPLE GENERATOR
+const btnGenerateExample = document.getElementById('btn-generate-example');
+if (btnGenerateExample) {
+  btnGenerateExample.addEventListener('click', () => {
+    const examples = [
+        {
+            interests: "Web Development, AI, Problem Solving",
+            strengths: "Logical thinking, basic Python, teamwork",
+            preferred_subjects: "DBMS, Data Structures, Computer Networks",
+            career_goal: "Become a Software Engineer"
+        },
+        {
+            interests: "Machine Learning, Data Analysis, Mathematics",
+            strengths: "Python, Statistics, Analytical thinking",
+            preferred_subjects: "Linear Algebra, Artificial Intelligence",
+            career_goal: "Data Scientist"
+        },
+        {
+            interests: "Cyber Security, Ethical Hacking, Linux",
+            strengths: "Attention to detail, Networking basics",
+            preferred_subjects: "Computer Networks, Cryptography",
+            career_goal: "Security Analyst"
+        },
+        {
+            interests: "Business Strategy, Entrepreneurship, Marketing",
+            strengths: "Communication, Leadership, Public speaking",
+            preferred_subjects: "Management, Economics",
+            career_goal: "Product Manager"
+        }
+    ];
+
+    const randomExample = examples[Math.floor(Math.random() * examples.length)];
+
+    document.getElementById("interests").value = randomExample.interests;
+    document.getElementById("strengths").value = randomExample.strengths;
+    document.getElementById("preferred_subjects").value = randomExample.preferred_subjects;
+    document.getElementById("career_goal").value = randomExample.career_goal;
+  });
+}
