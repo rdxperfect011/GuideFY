@@ -201,7 +201,9 @@ def resume_analyze():
         keywords = analyze_resume_keywords(clean_text)
         
         # Calculate ATS score
-        ats_score = calculate_ats_score(clean_text, keywords)
+        ats_data = calculate_ats_score(clean_text, keywords)
+        ats_score = ats_data["total"]
+        ats_breakdown = ats_data["breakdown"]
         
         # NLP analysis
         nlp_analysis = extract_nlp_analysis(clean_text)
@@ -220,6 +222,7 @@ def resume_analyze():
         # Combine all analysis
         result = {
             "ats_score": ats_score,
+            "ats_breakdown": ats_breakdown,
             "keywords_found": keywords,
             "analysis": ai_analysis,
             "nlp_analysis": nlp_analysis

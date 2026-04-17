@@ -220,69 +220,101 @@ def analyze_resume_keywords(text: str) -> Dict[str, list]:
     return found_keywords
 
 
-def calculate_ats_score(text: str, keywords: Dict[str, list]) -> int:
+def calculate_ats_score(text: str, keywords: Dict[str, list]) -> Dict[str, any]:
     """
     Calculate ATS (Applicant Tracking System) compatibility score.
-    
-    Args:
-        text: Resume text
-        keywords: Found keywords dictionary
-        
     Returns:
-        Score between 0-100
+        Dict with total_score between 0-100 and a breakdown of components
     """
-    score = 0
+    breakdown = {
+        "Skills Match Score": 0,
+        "Keyword Match Score": 0,
+        "Experience Score": 0,
+        "Education Score": 0,
+        "Formatting Score": 0
+    }
     
+    # 1. Contact Info & Sections (Formatting Score max 20)
+    fmt_score = 0
     # Check for contact information (email, phone)
-    # Email pattern: standard user@domain.com format
     if re.search(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', text):
-        score += 10
-    # Phone pattern: 10 digits or standard xxx-xxx-xxxx formats
+        fmt_score += 10
     if re.search(r'\b\d{10}\b|\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b', text):
-        score += 10
+        fmt_score += 5
     
     # Check for section headers
     common_sections = ['experience', 'education', 'skills', 'projects']
     for section in common_sections:
         if section in text.lower():
-            score += 5
+            fmt_score += 1.25
+    breakdown["Formatting Score"] = min(int(fmt_score), 20)
     
-    # Check for keywords
+    # 2. Skills Match Score (max 25)
+    skill_score = 0
     tech_count = len(keywords.get('technical_skills', []))
     soft_count = len(keywords.get('soft_skills', []))
     
     if tech_count + soft_count >= 10:
-        score += 20
+        skill_score += 25
     elif tech_count + soft_count >= 5:
-        score += 10
+        skill_score += 15
     else:
-        score += 5
+        skill_score += 5
+    breakdown["Skills Match Score"] = skill_score
         
-    # Check for NLP Entities (Organizations, Locations, Dates)
+    # 3. Keyword Match (Entities / Action Verbs) Score (max 25)
+    kw_score = 0
     org_count = len(keywords.get('organizations', []))
-    date_count = len(keywords.get('dates', []))
     
     if org_count >= 2:
-        score += 10  # Mentioning specific companies is good
-    if date_count >= 3:
-        score += 10  # Specifying precise timelines is a strong ATS signal
+        kw_score += 10
     
-    # Check for action verbs (Lemmatized via NLP)
     verb_count = len(keywords.get('action_verbs', []))
     if verb_count >= 5:
-        score += 10
+        kw_score += 15
     elif verb_count >= 3:
-        score += 5
+        kw_score += 8
+    breakdown["Keyword Match Score"] = kw_score
     
-    # Check for quantifiable achievements (numbers)
-    # Looks for percentages, "X+", or "Xx" (e.g., "10x growth") to indicate measurable impact
+    # 4. Experience & Impact Score (max 20)
+    exp_score = 0
+    date_count = len(keywords.get('dates', []))
+    if date_count >= 3:
+        exp_score += 10  # Specifying precise timelines is a strong ATS signal
+    
     numbers = re.findall(r'\b\d+%|\b\d+\+|\b\d+x\b', text)
     if len(numbers) >= 3:
-        score += 10
+        exp_score += 10
     elif len(numbers) >= 1:
-        score += 5
+        exp_score += 5
+    breakdown["Experience Score"] = min(exp_score, 20)
+
+    # 5. Education Score (max 10)
+    edu_score = 0
+    education_keywords = ['bachelor', 'master', 'phd', 'b.tech', 'm.tech', 'bsc', 'msc', 'diploma', 'certificate', 'certification', 'high school', 'degree', 'university', 'college']
+    edu_count = sum(1 for edu in education_keywords if edu in text.lower())
+    if edu_count >= 2:
+        edu_score = 10
+    elif edu_count >= 1:
+        edu_score = 5
+    breakdown["Education Score"] = edu_score
+
+    # Calculate total and map breakdown dict
+    total_score = min(sum(breakdown.values()), 100)
     
-    return min(score, 100)
+    percentages = {
+        "Skills Match": {"score": breakdown["Skills Match Score"], "max": 25},
+        "Keyword Match": {"score": breakdown["Keyword Match Score"], "max": 25},
+        "Experience": {"score": breakdown["Experience Score"], "max": 20},
+        "Formatting": {"score": breakdown["Formatting Score"], "max": 20},
+        "Education": {"score": breakdown["Education Score"], "max": 10}
+    }
+    
+    return {
+        "total": total_score,
+        "breakdown": percentages
+    }
+
 
 def extract_nlp_analysis(text: str) -> Dict[str, any]:
     """

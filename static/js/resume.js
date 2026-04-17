@@ -253,6 +253,39 @@ function displayResults(data) {
     svg.insertBefore(defs, svg.firstChild);
   }
 
+  // ATS Score Breakdown
+  const breakdownEl = document.getElementById('ats-breakdown-list');
+  if (breakdownEl && data.ats_breakdown) {
+    breakdownEl.innerHTML = '';
+    const breakdown = data.ats_breakdown;
+    
+    for (const [key, value] of Object.entries(breakdown)) {
+      const percentage = Math.round((value.score / value.max) * 100) || 0;
+      
+      const item = document.createElement('div');
+      item.className = 'breakdown-item';
+      
+      item.innerHTML = `
+        <div class="breakdown-header">
+          <span>${key}</span>
+          <span class="breakdown-score">${value.score}/${value.max}</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width: 0%" data-target="${percentage}%"></div>
+        </div>
+      `;
+      breakdownEl.appendChild(item);
+    }
+
+    // Trigger animations after a short delay
+    setTimeout(() => {
+      const progressBars = breakdownEl.querySelectorAll('.progress-bar-fill');
+      progressBars.forEach(bar => {
+        bar.style.width = bar.getAttribute('data-target');
+      });
+    }, 200);
+  }
+
   // Strengths
   const strengthsList = document.getElementById('strengths-list');
   strengthsList.innerHTML = '';
