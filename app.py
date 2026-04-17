@@ -113,19 +113,28 @@ def career():
 You are a backend API.
 Return ONLY raw JSON.
 Give output in at least 20-30 words per field.
-The confidence_score.overall must be a number between 0 and 100 (percentage).
-Calculate the confidence score based on:
-1. Input Detail (30%): Higher if interests/goals are specific (e.g., "Python backend" > "coding").
-2. Alignment (40%): Higher if interests match the career goal.
-3. Feasibility (30%): Higher if the path is realistic.
-Return a precise integer (e.g., 87, 62, 95). Do NOT default to 65.
-Do Not use 1-5 or 1-10 scales.
+Quantify the confidence_score by explicitly calculating 4 individual factors (0-100 each).
+1. Input Detail Quality: Higher if interests/goals are specific ("Python backend" > "coding").
+2. Skill Relevance: How effectively the student's current skills match the required path.
+3. Career Alignment: How logically the stated interests match the stated ultimate career goal.
+4. Feasibility: Based on their current profile, how realistic is this career target right now?
+Calculate the overall score as a weighted average.
+Do NOT default to 65 or 50. Provide highly analytical, dynamic, real percentages natively.
 Extract explicit current skills from the User Details and place them in keywords_found.
 {{
   "careers":[{{"name":"","justification":""}}],
   "courses":[{{"name":"","description":""}}],
   "next_steps":[{{"action":"","details":""}}],
-  "confidence_score":{{"overall":0,"explanation":""}},
+  "confidence_score":{{
+    "overall": 0,
+    "breakdown": {{
+      "input_detail_quality": 0,
+      "skill_relevance": 0,
+      "career_alignment": 0,
+      "feasibility": 0
+    }},
+    "explanation": ""
+  }},
   "skill_gap_analysis":{{"missing_skills":[]}},
   "keywords_found":[]
 }}

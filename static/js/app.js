@@ -160,6 +160,8 @@ function showRecommendation(data) {
       ? missingSkills.map(s => `<span class="skill-badge">${cleanText(s)}</span>`).join("")
       : `<p style="color: var(--text-tertiary); font-size: 0.9rem;">No critical skills missing!</p>`;
 
+  const bd = data?.confidence_score?.breakdown || {};
+
   const dashboardHTML = `
     <div class="glass-card">
       <h3>📊 Analytics Dashboard</h3>
@@ -179,6 +181,26 @@ function showRecommendation(data) {
         <div class="metric-card">
           <div class="metric-title">Missing Skills</div>
           <div class="metric-value">${missingSkillsCount}</div>
+        </div>
+      </div>
+
+      <h4 style="margin-top: 1.5rem; margin-bottom: 0.75rem; color: var(--text-secondary); border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Scoring Logic Breakdown</h4>
+      <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px;">
+        <div class="metric-card" style="padding: 1rem;">
+          <div class="metric-title" style="font-size: 0.75rem;">Input Quality</div>
+          <div class="metric-value" style="font-size: 1.5rem; color: #d8b4fe;">${bd.input_detail_quality || 0}</div>
+        </div>
+        <div class="metric-card" style="padding: 1rem;">
+          <div class="metric-title" style="font-size: 0.75rem;">Skill Match</div>
+          <div class="metric-value" style="font-size: 1.5rem; color: #93c5fd;">${bd.skill_relevance || 0}</div>
+        </div>
+        <div class="metric-card" style="padding: 1rem;">
+          <div class="metric-title" style="font-size: 0.75rem;">Alignment</div>
+          <div class="metric-value" style="font-size: 1.5rem; color: #a7f3d0;">${bd.career_alignment || 0}</div>
+        </div>
+        <div class="metric-card" style="padding: 1rem;">
+          <div class="metric-title" style="font-size: 0.75rem;">Feasibility</div>
+          <div class="metric-value" style="font-size: 1.5rem; color: #fca5a5;">${bd.feasibility || 0}</div>
         </div>
       </div>
 

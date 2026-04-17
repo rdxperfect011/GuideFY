@@ -174,25 +174,28 @@ def normalize_output(raw: Dict[str, Any], user_text: str, db: Optional[Dict[str,
     """
     Ensures consistent API response format.
     """
-    # EXTRACT AND SANITIZE CONFIDENCE SCORE:
-    # The language model may return the score inconsistently (e.g., as a string like "85%", or a generic object).
-    # This block intercepts the parsed data and asserts it must be a strict integer to prevent frontend NaN errors.
     confidence_score = raw.get("confidence_score", {})
     if not isinstance(confidence_score, dict):
-        confidence_score = {"explanation": str(confidence_score), "overall": 50}
+        confidence_score = {"explanation": str(confidence_score), "overall": 50, "breakdown": {}}
         
-    overall = confidence_score.get("overall", 50)
-    import re
-    if isinstance(overall, str):
-        # Extract numerical digits strictly from hallucinated strings (e.g. "Score: 82%" returns 82)
-        match = re.search(r'\d+', overall)
-        overall = int(match.group()) if match else 50
-    elif not isinstance(overall, (int, float)):
-        overall = 50
-        
-    # ALGORITHMIC REALITY BLENDING:
-    # LLMs frequently hallucinate high scores mathematically (e.g., scoring 85% even when 0 skills match).
-    # This securely overrides abstract LLM logic by manually calculating the ratio of Matched vs Missing technical skills.
+    breakdown = confidence_score.get("breakdown", {})
+    if not isinstance(breakdown, dict):
+        breakdown = {
+            "input_detail_quality": 50,
+            "skill_relevance": 50,
+            "career_alignment": 50,
+            "feasibility": 50
+        }
+
+    q = breakdown.get("input_detail_quality", 50)
+    a = breakdown.get("career_alignment", 50)
+    f = breakdown.get("feasibility", 50)
+    
+    # Ensure they are integers safely
+    q = int(q) if str(q).isdigit() else 50
+    a = int(a) if str(a).isdigit() else 50
+    f = int(f) if str(f).isdigit() else 50
+    
     keywords_found = raw.get("keywords_found", [])
     skill_gap_analysis = raw.get("skill_gap_analysis", {})
     missing_skills = skill_gap_analysis.get("missing_skills", [])
@@ -200,18 +203,27 @@ def normalize_output(raw: Dict[str, Any], user_text: str, db: Optional[Dict[str,
     total_found = len(keywords_found)
     total_missing = len(missing_skills)
     
+    # Blend algorithmic reality check on LLM's perceived skill alignment
+    llm_skill_score = breakdown.get("skill_relevance", 50)
+    llm_skill_score = int(llm_skill_score) if str(llm_skill_score).isdigit() else 50
+    
     if total_found + total_missing > 0:
-        # Calculate strict algorithmic percentage based on extracted terms
-        algorithmic_score = (total_found / (total_found + total_missing)) * 100
-        
-        # Determine Final Scope: Weight pure mathematical reality at 60%, and LLM behavioral justification at 40%
-        blended_score = int((overall * 0.4) + (algorithmic_score * 0.6))
-        
-        # Enforce bounds so score doesn't plunge below an absolute minimum of 10%
-        confidence_score["overall"] = max(10, min(100, blended_score))
+        algorithmic_score = int((total_found / (total_found + total_missing)) * 100)
+        s = int((algorithmic_score * 0.7) + (llm_skill_score * 0.3))
     else:
-        # Fallback to pure LLM score if specific skill vectors are empty
-        confidence_score["overall"] = int(overall)
+        s = llm_skill_score
+        
+    # Final deterministic calculation of overall score via weighted average
+    overall = int((q * 0.25) + (s * 0.25) + (a * 0.25) + (f * 0.25))
+    overall = max(10, min(100, overall))
+
+    confidence_score["overall"] = overall
+    confidence_score["breakdown"] = {
+        "input_detail_quality": q,
+        "skill_relevance": s,
+        "career_alignment": a,
+        "feasibility": f
+    }
 
     return {
         "careers": raw.get("careers", []),
