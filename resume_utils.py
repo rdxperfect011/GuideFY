@@ -54,7 +54,14 @@ Provide analysis in this EXACT JSON format:
     {{"priority": "medium", "item": "specific action"}},
     {{"priority": "low", "item": "specific action"}}
   ],
-  "overall_impression": "Brief overall assessment"
+  "overall_impression": "Brief overall assessment",
+  "ai_comparison": {{
+    "ats_score": 85,
+    "skills_match": "High/Medium/Low - Brief explanation",
+    "keyword_match": "High/Medium/Low - Brief explanation",
+    "final_recommendation": "Brief recommendation differentiation",
+    "reasoning": "Brief explanation of why the AI score and evaluation might differ from a strict keyword-counting system."
+  }}
 }}
 
 Be specific, actionable, and constructive.

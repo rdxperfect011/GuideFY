@@ -286,6 +286,28 @@ function displayResults(data) {
     }, 200);
   }
 
+  // AI vs Rule-Based Comparison Mapping
+  if (data.analysis && data.analysis.ai_comparison) {
+    const ai = data.analysis.ai_comparison;
+    const ruleBreakdown = data.ats_breakdown;
+
+    // Rule-Based side
+    document.getElementById('comp-rule-score').textContent = data.ats_score + '/100';
+    if (ruleBreakdown) {
+      document.getElementById('comp-rule-skills').textContent = `Scored ${ruleBreakdown["Skills Match"].score} out of ${ruleBreakdown["Skills Match"].max} purely on recognized hard skills.`;
+      document.getElementById('comp-rule-keywords').textContent = `Scored ${ruleBreakdown["Keyword Match"].score} out of ${ruleBreakdown["Keyword Match"].max} on exact keyword / entity match.`;
+    }
+
+    // AI Semantic side
+    document.getElementById('comp-ai-score').textContent = (ai.ats_score || '--') + '/100';
+    document.getElementById('comp-ai-skills').textContent = ai.skills_match || 'Analyzing...';
+    document.getElementById('comp-ai-keywords').textContent = ai.keyword_match || 'Analyzing...';
+    document.getElementById('comp-ai-rec').textContent = ai.final_recommendation || 'Analyzing...';
+    
+    // Reasoning
+    document.getElementById('comp-ai-reasoning').textContent = ai.reasoning || 'Analyzing...';
+  }
+
   // Strengths
   const strengthsList = document.getElementById('strengths-list');
   strengthsList.innerHTML = '';

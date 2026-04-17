@@ -483,8 +483,110 @@
     transition: width 1.5s ease-out;
 }
 
+/* AI vs Rule Comparison Section */
+.comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.comparison-column {
+    padding: 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.rule-column {
+    background: linear-gradient(145deg, rgba(59, 130, 246, 0.05) 0%, rgba(37, 99, 235, 0.1) 100%);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.rule-column h4 {
+    color: #60a5fa;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.rule-column .comp-score {
+    color: #93c5fd;
+}
+
+.ai-column {
+    background: linear-gradient(145deg, rgba(139, 92, 246, 0.05) 0%, rgba(217, 70, 239, 0.1) 100%);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.ai-column h4 {
+    color: #c084fc;
+    border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+    padding-bottom: 0.5rem;
+}
+
+.ai-column .comp-score {
+    color: #d8b4fe;
+}
+
+.comp-score {
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+    margin: 0.5rem 0;
+}
+
+.comp-clarity {
+    font-size: 0.8rem;
+    color: var(--text-tertiary);
+    text-align: center;
+    margin-top: -0.75rem;
+    margin-bottom: 0.25rem;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+.comp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.comp-label {
+    font-size: 0.85rem;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.comp-value {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.reasoning-box {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 4px solid var(--accent-pink);
+    padding: 1.25rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+.reasoning-label {
+    font-weight: 700;
+    color: var(--accent-pink);
+    margin-right: 0.5rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+    .comparison-grid {
+        grid-template-columns: 1fr;
+    }
     .hero h1 {
         font-size: 2rem;
     }
