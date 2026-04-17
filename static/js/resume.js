@@ -141,6 +141,68 @@ analyzeAnotherBtn.addEventListener('click', () => {
  * @param {Object} data - The analysis data from backend
  */
 function displayResults(data) {
+  // NLP Data Extraction
+  if (data.nlp_analysis) {
+    const nlp = data.nlp_analysis;
+
+    // Experience Level
+    const expEl = document.getElementById('nlp-experience');
+    if (expEl) {
+      expEl.textContent = nlp.experience_level || 'Unknown';
+      expEl.className = 'nlp-value highlight-level ' + (nlp.experience_level || '');
+    }
+
+    // Education
+    const eduEl = document.getElementById('nlp-education');
+    if (eduEl) {
+      eduEl.innerHTML = '';
+      if (nlp.education && nlp.education.length > 0) {
+        nlp.education.forEach(item => {
+          const tag = document.createElement('span');
+          tag.className = 'keyword-tag';
+          tag.textContent = item;
+          eduEl.appendChild(tag);
+        });
+      } else {
+        eduEl.innerHTML = '<span style="color: var(--text-tertiary);">No education keywords detected</span>';
+      }
+    }
+
+    // Skills
+    const skillsEl = document.getElementById('nlp-skills');
+    if (skillsEl) {
+      skillsEl.innerHTML = '';
+      if (nlp.skills && nlp.skills.length > 0) {
+        nlp.skills.forEach(item => {
+          const tag = document.createElement('span');
+          tag.className = 'keyword-tag';
+          tag.textContent = item;
+          skillsEl.appendChild(tag);
+        });
+      } else {
+        skillsEl.innerHTML = '<span style="color: var(--text-tertiary);">No specific tools/skills detected</span>';
+      }
+    }
+
+    // Domain Keywords
+    const domainEl = document.getElementById('nlp-domain');
+    if (domainEl) {
+      domainEl.innerHTML = '';
+      if (nlp.domain_keywords && nlp.domain_keywords.length > 0) {
+        nlp.domain_keywords.forEach(item => {
+          const tag = document.createElement('span');
+          tag.className = 'keyword-tag';
+          tag.style.borderColor = 'var(--accent-pink)';
+          tag.style.color = 'var(--accent-pink)';
+          tag.textContent = item;
+          domainEl.appendChild(tag);
+        });
+      } else {
+        domainEl.innerHTML = '<span style="color: var(--text-tertiary);">No specific domain keywords detected</span>';
+      }
+    }
+  }
+
   // ATS Score
   const atsScore = data.ats_score;
   const scoreCircle = document.getElementById('score-circle');

@@ -19,7 +19,8 @@ from resume_utils import (
     analyze_resume_keywords,
     calculate_ats_score,
     RESUME_ANALYSIS_PROMPT,
-    get_nlp_model
+    get_nlp_model,
+    extract_nlp_analysis
 )
 
 # ENVIRONMENT & AI CONFIGURATION
@@ -202,6 +203,9 @@ def resume_analyze():
         # Calculate ATS score
         ats_score = calculate_ats_score(clean_text, keywords)
         
+        # NLP analysis
+        nlp_analysis = extract_nlp_analysis(clean_text)
+        
         # Get AI analysis
         prompt = RESUME_ANALYSIS_PROMPT.format(resume_text=clean_text[:3000])
         
@@ -217,7 +221,8 @@ def resume_analyze():
         result = {
             "ats_score": ats_score,
             "keywords_found": keywords,
-            "analysis": ai_analysis
+            "analysis": ai_analysis,
+            "nlp_analysis": nlp_analysis
         }
         
         return jsonify(result)

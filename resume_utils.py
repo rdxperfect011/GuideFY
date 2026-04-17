@@ -283,3 +283,59 @@ def calculate_ats_score(text: str, keywords: Dict[str, list]) -> int:
         score += 5
     
     return min(score, 100)
+
+def extract_nlp_analysis(text: str) -> Dict[str, any]:
+    """
+    Extracts NLP-driven insights: skills, experience level, education, keywords.
+    """
+    text_lower = text.lower()
+    nlp = get_nlp_model()
+    
+    # Process text with spaCy if available
+    doc = nlp(text) if nlp else None
+
+    # Extracted skills (technical + tools)
+    technical_skills = [
+        'python', 'java', 'javascript', 'react', 'node', 'sql', 'aws', 'docker',
+        'kubernetes', 'git', 'machine learning', 'ai', 'data science', 'tensorflow',
+        'pytorch', 'html', 'css', 'angular', 'vue', 'mongodb', 'postgresql', 'c++', 'c#',
+        'fastapi', 'flask', 'django', 'spring', 'go', 'rust', 'azure', 'gcp'
+    ]
+    skills_detected = [skill for skill in technical_skills if skill in text_lower]
+
+    # Education
+    education_keywords = ['bachelor', 'master', 'phd', 'b.tech', 'm.tech', 'bsc', 'msc', 'diploma', 'certificate', 'certification', 'high school', 'degree']
+    education_detected = list(set([edu for edu in education_keywords if edu in text_lower]))
+
+    # Experience level classification
+    if any(word in text_lower for word in ['senior', 'lead', 'manager', 'director', 'principal', 'head']) or re.search(r'\b(1[0-9]|20)\+?\s*years?\b', text_lower):
+        experience_level = "Advanced"
+    elif any(word in text_lower for word in ['intermediate', 'mid-level']) or re.search(r'\b[3-9]\+?\s*years?\b', text_lower):
+        experience_level = "Intermediate"
+    elif any(word in text_lower for word in ['intern', 'junior', 'fresher', 'entry-level', 'beginner']) or re.search(r'\b[0-2]\s*years?\b', text_lower):
+        experience_level = "Beginner"
+    else:
+        experience_level = "Intermediate" if len(skills_detected) > 5 else "Beginner"
+
+    # Important keywords (Domain related nouns)
+    important_keywords = []
+    if doc:
+        from collections import Counter
+        # Extract Nouns and Proper Nouns, ignoring short words and stop words
+        nouns = [token.text.lower() for token in doc if token.pos_ in ['NOUN'] and len(token.text) > 3 and not token.is_stop]
+        
+        # Don't include words that are already in skills or education
+        filtered_nouns = [n for n in nouns if n not in technical_skills and n not in education_keywords]
+        
+        top_nouns = [word for word, count in Counter(filtered_nouns).most_common(8)]
+        important_keywords = top_nouns
+    else:
+        # Fallback if no spaCy
+        important_keywords = list(set([word for word in text_lower.split() if len(word) > 5]))[:8]
+
+    return {
+        "skills": skills_detected,
+        "experience_level": experience_level,
+        "education": education_detected,
+        "domain_keywords": important_keywords
+    }

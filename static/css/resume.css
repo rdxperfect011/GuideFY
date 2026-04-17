@@ -390,6 +390,55 @@
     color: var(--text-secondary);
 }
 
+/* NLP Section */
+
+.nlp-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.nlp-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nlp-label {
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.nlp-value {
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.highlight-level {
+    font-weight: 700;
+    padding: 0.3rem 0.8rem;
+    border-radius: 8px;
+    display: inline-block;
+    width: fit-content;
+}
+
+.highlight-level.Beginner {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--accent-green);
+}
+
+.highlight-level.Intermediate {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--accent-yellow);
+}
+
+.highlight-level.Advanced {
+    background: rgba(139, 92, 246, 0.2);
+    color: var(--accent-purple);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .hero h1 {
