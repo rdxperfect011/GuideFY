@@ -1,8 +1,5 @@
 # File Tree: GuideFY
 
-**Generated:** 18/03/2026, 11:12:02
-**Root Path:** `/Users/tanmayjamwal/Documents/GitHub/GuideFY`
-
 ```
 ├── 📁 data
 │   └── ⚙️ upskill_db.json

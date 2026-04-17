@@ -5,3 +5,4 @@ requests
 PyPDF2
 python-docx
 urllib3<2.0.0
+spacy

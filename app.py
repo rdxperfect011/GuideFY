@@ -17,9 +17,9 @@ from resume_utils import (
     extract_resume_text,
     preprocess_resume_text,
     analyze_resume_keywords,
-    analyze_resume_keywords,
     calculate_ats_score,
-    RESUME_ANALYSIS_PROMPT
+    RESUME_ANALYSIS_PROMPT,
+    get_nlp_model
 )
 
 # ENVIRONMENT & AI CONFIGURATION
@@ -84,7 +84,28 @@ def career():
     Returns JSON with career path, courses, next steps, confidence score, and upskilling resources.
     """
     data = request.get_json(force=True)
-    user_text = f"{data.get('interests', '')} {data.get('career_goal', '')}"
+    interests = data.get('interests', '')
+    career_goal = data.get('career_goal', '')
+    strengths = data.get('strengths', '')
+    preferred_subjects = data.get('preferred_subjects', '')
+    
+    user_text = f"{interests} {career_goal} {strengths} {preferred_subjects}".strip()
+
+    # ==========================================
+    # NLP Context Extraction Pipeline
+    # ==========================================
+    # Instead of sending raw user input directly to the LLM (which can cause
+    # loose interpretations or hallucinations), we intercept the text and 
+    # analyze it using the spaCy Natural Language Processing library.
+    # We explicitly tokenize the grammar to find Action Verbs (Methodology), 
+    # Nouns (Hard Skills/Concepts), and Adjectives (Behavioral Traits).
+    nlp_verbs, nlp_nouns, nlp_adjectives = [], [], []
+    nlp = get_nlp_model()
+    if nlp and user_text:
+        doc = nlp(f"{interests} {strengths} {preferred_subjects}")
+        nlp_verbs = list(set([token.lemma_.lower() for token in doc if token.pos_ == 'VERB']))
+        nlp_nouns = list(set([token.lemma_.lower() for token in doc if token.pos_ == 'NOUN']))
+        nlp_adjectives = list(set([token.lemma_.lower() for token in doc if token.pos_ == 'ADJ']))
 
     try:
         prompt = f"""
@@ -97,17 +118,29 @@ Calculate the confidence score based on:
 2. Alignment (40%): Higher if interests match the career goal.
 3. Feasibility (30%): Higher if the path is realistic.
 Return a precise integer (e.g., 87, 62, 95). Do NOT default to 65.
-Do Not use 1–5 or 1–10 scales.
+Do Not use 1-5 or 1-10 scales.
+Extract explicit current skills from the User Details and place them in keywords_found.
 {{
   "careers":[{{"name":"","justification":""}}],
   "courses":[{{"name":"","description":""}}],
   "next_steps":[{{"action":"","details":""}}],
   "confidence_score":{{"overall":0,"explanation":""}},
-  "skill_gap_analysis":{{"missing_skills":[]}}
+  "skill_gap_analysis":{{"missing_skills":[]}},
+  "keywords_found":[]
 }}
 
-User interests: {data.get('interests')}
-Career goal: {data.get('career_goal')}
+User Details:
+Interests: {interests}
+Strengths: {strengths}
+Preferred Subjects: {preferred_subjects}
+Career Goal: {career_goal}
+
+NLP Profile Extraction:
+- Core Action Verbs identified: {', '.join(nlp_verbs) if nlp_verbs else 'None'}
+- Key Concept Nouns identified: {', '.join(nlp_nouns) if nlp_nouns else 'None'}
+- Distinct Behavioral Adjectives: {', '.join(nlp_adjectives) if nlp_adjectives else 'None'}
+
+Notice the NLP Extraction above that automatically determines the grammatical mapping and behavioral characteristics of this user's profile. Use this deeply structured NLP-derived context to formulate an ultra-personalized, deeper, and highly accurate recommendation regarding their ideal career pathway and their uniquely missing technical skills.
 """
         # Generate content using the configured Gemini model
         response = client.models.generate_content(
@@ -198,5 +231,5 @@ def resume_analyze():
 
 # APPLICATION ENTRY POINT
 if __name__ == "__main__":
-    print("Server running at http://127.0.0.1:5050")
+    print("Server running at http://127.0.0.1:5060")
     app.run(debug=True, port=5050, threaded=True)

@@ -119,6 +119,12 @@ function showRecommendation(data) {
   updateStatus(); // refresh AI indicator after response
 
   const score = Math.round(data?.confidence_score?.overall || 0);
+  const keywordsFound = data?.keywords_found || [];
+  const totalSkillsFoundCount = keywordsFound.length || 0;
+  
+  const skillGapAnalysis = data?.skill_gap_analysis || {};
+  const missingSkills = skillGapAnalysis.missing_skills || [];
+  const missingSkillsCount = missingSkills.length || 0;
 
   // LIGHTBULB HERO SECTION
   const heroHTML = `
@@ -129,9 +135,9 @@ function showRecommendation(data) {
         </svg>
       </div>
       <div class="score-display">
-        <div class="score-percentage" id="animated-score">0%</div>
+        <div class="score-percentage" id="animated-score-hero">0%</div>
         <div class="score-label">Career Potential Illuminated</div>
-        <p class="score-explanation">${cleanText(data?.confidence_score?.explanation)}</p>
+        <p class="score-explanation">${cleanText(data?.confidence_score?.explanation || "")}</p>
       </div>
     </div>
   `;
@@ -141,6 +147,53 @@ function showRecommendation(data) {
     <div class="flow-connector">
       <div class="connector-line">
         <div class="connector-arrow"></div>
+      </div>
+    </div>
+  `;
+
+  // DASHBOARD SECTION
+  let progressBarClass = "score-red";
+  if (score >= 80) progressBarClass = "score-green";
+  else if (score >= 50) progressBarClass = "score-yellow";
+
+  const missingSkillsTags = missingSkills.length > 0 
+      ? missingSkills.map(s => `<span class="skill-badge">${cleanText(s)}</span>`).join("")
+      : `<p style="color: var(--text-tertiary); font-size: 0.9rem;">No critical skills missing!</p>`;
+
+  const dashboardHTML = `
+    <div class="glass-card">
+      <h3>📊 Analytics Dashboard</h3>
+      
+      <div class="dashboard-grid">
+        <div class="metric-card">
+          <div class="metric-title">ATS Score</div>
+          <div class="metric-value" id="animated-score-dash">0%</div>
+          <div class="dashboard-progress-container">
+            <div class="dashboard-progress-fill ${progressBarClass}" id="ats-progress-bar" style="width: 0%;"></div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Skills Found</div>
+          <div class="metric-value">${totalSkillsFoundCount}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">Missing Skills</div>
+          <div class="metric-value">${missingSkillsCount}</div>
+        </div>
+      </div>
+
+      <div class="chart-container-wrapper">
+        <div class="chart-card">
+          <div class="chart-wrapper">
+            <canvas id="skillsChart"></canvas>
+          </div>
+        </div>
+        <div class="missing-skills-card">
+          <h4>Missing Skills Required</h4>
+          <div class="skills-tags">
+            ${missingSkillsTags}
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -180,6 +233,10 @@ function showRecommendation(data) {
       ${heroHTML}
       
       ${connector}
+      
+      ${dashboardHTML}
+
+      ${connector}
 
       <div class="glass-card">
         <h3>🚀 Career Pathways</h3>
@@ -215,8 +272,47 @@ function showRecommendation(data) {
     </div>
   `;
 
-  // ANIMATE SCORE COUNTER
-  animateValue("animated-score", 0, score, 2000);
+  // ANIMATE SCORE COUNTERS
+  animateValue("animated-score-hero", 0, score, 2000);
+  animateValue("animated-score-dash", 0, score, 2000);
+
+  // Animate ATS Progress Bar
+  setTimeout(() => {
+    const pBar = document.getElementById("ats-progress-bar");
+    if (pBar) pBar.style.width = score + "%";
+  }, 100);
+
+  // Initialize Chart.js Pie Chart
+  // We explicitly target and destroy the previous window.skillsChartInstance 
+  // before rendering a new one to completely prevent Canvas collision bugs 
+  // and performance memory leaks when users submit the form multiple times.
+  if (window.skillsChartInstance) {
+      window.skillsChartInstance.destroy();
+  }
+  const ctx = document.getElementById('skillsChart');
+  if (ctx) {
+      window.skillsChartInstance = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+              labels: ['Matched Skills', 'Missing Skills'],
+              datasets: [{
+                  data: [totalSkillsFoundCount, missingSkillsCount],
+                  backgroundColor: ['#10b981', '#ef4444'],
+                  hoverOffset: 4,
+                  borderWidth: 0
+              }]
+          },
+          options: {
+              responsive: true,
+              plugins: {
+                  legend: {
+                      position: 'bottom',
+                      labels: { color: 'rgba(255, 255, 255, 0.7)' }
+                  }
+              }
+          }
+      });
+  }
 }
 
 /**

@@ -3,7 +3,27 @@ Resume utilities for text extraction and processing.
 Supports PDF and DOCX file formats.
 """
 import re
+import sys
+import subprocess
 from typing import Dict
+
+try:
+    import spacy
+except ImportError:
+    spacy = None
+
+nlp_model = None
+
+def get_nlp_model():
+    global nlp_model
+    if nlp_model is None and spacy is not None:
+        try:
+            nlp_model = spacy.load("en_core_web_sm")
+        except OSError:
+            print("Downloading spaCy en_core_web_sm model...")
+            subprocess.check_call([sys.executable, "-m", "spacy", "download", "en_core_web_sm"])
+            nlp_model = spacy.load("en_core_web_sm")
+    return nlp_model
 
 try:
     from PyPDF2 import PdfReader
@@ -134,17 +154,20 @@ def preprocess_resume_text(text: str) -> str:
 
 def analyze_resume_keywords(text: str) -> Dict[str, list]:
     """
-    Analyze resume for common keywords and categories.
+    Analyze resume for common keywords and categories using NLP.
     
     Args:
         text: Resume text
         
     Returns:
-        Dictionary with keyword categories
+        Dictionary with keyword categories and NLP entities
     """
     text_lower = text.lower()
+    nlp = get_nlp_model()
     
-    # Common keyword categories
+    # Process text with spaCy if available
+    doc = nlp(text) if nlp else None
+    
     technical_skills = [
         'python', 'java', 'javascript', 'react', 'node', 'sql', 'aws', 'docker',
         'kubernetes', 'git', 'machine learning', 'ai', 'data science', 'tensorflow',
@@ -157,16 +180,43 @@ def analyze_resume_keywords(text: str) -> Dict[str, list]:
     ]
     
     action_verbs = [
-        'developed', 'created', 'designed', 'implemented', 'managed', 'led',
-        'improved', 'optimized', 'achieved', 'delivered', 'built', 'launched'
+        'develop', 'create', 'design', 'implement', 'manage', 'lead',
+        'improve', 'optimize', 'achieve', 'deliver', 'build', 'launch'
     ]
     
-    found_keywords = {
-        'technical_skills': [skill for skill in technical_skills if skill in text_lower],
-        'soft_skills': [skill for skill in soft_skills if skill in text_lower],
-        'action_verbs': [verb for verb in action_verbs if verb in text_lower]
-    }
+    found_tech_skills = [skill for skill in technical_skills if skill in text_lower]
+    found_soft_skills = [skill for skill in soft_skills if skill in text_lower]
     
+    if doc:
+        # Use NLP for action verbs: match on lemmas
+        doc_lemmas = [token.lemma_.lower() for token in doc if token.pos_ == 'VERB']
+        found_action_verbs = list(set([verb for verb in action_verbs if verb in doc_lemmas]))
+        
+        # Extract entities
+        organizations = list(set([ent.text for ent in doc.ents if ent.label_ == 'ORG']))
+        locations = list(set([ent.text for ent in doc.ents if ent.label_ == 'GPE']))
+        dates = list(set([ent.text for ent in doc.ents if ent.label_ == 'DATE']))
+        
+        found_keywords = {
+            'technical_skills': found_tech_skills,
+            'soft_skills': found_soft_skills,
+            'action_verbs': found_action_verbs,
+            'organizations': organizations[:10], # Limit to avoid bloat
+            'locations': locations[:10],
+            'dates': dates[:10]
+        }
+    else:
+        # Fallback to simple matching if spaCy is unavailable
+        action_verbs_simple = [v + 'ed' for v in action_verbs] + action_verbs
+        found_keywords = {
+            'technical_skills': found_tech_skills,
+            'soft_skills': found_soft_skills,
+            'action_verbs': [verb for verb in action_verbs_simple if verb in text_lower],
+            'organizations': [],
+            'locations': [],
+            'dates': []
+        }
+        
     return found_keywords
 
 
@@ -198,22 +248,30 @@ def calculate_ats_score(text: str, keywords: Dict[str, list]) -> int:
             score += 5
     
     # Check for keywords
-    # Awards points based on the density of relevant keywords found
-    total_keywords = sum(len(v) for v in keywords.values())
-    if total_keywords >= 10:
-        score += 30
-    elif total_keywords >= 5:
-        score += 20
-    else:
-        score += 10
+    tech_count = len(keywords.get('technical_skills', []))
+    soft_count = len(keywords.get('soft_skills', []))
     
-    # Check for action verbs
-    # Strong resumes use action verbs (e.g., "developed", "led")
-    if len(keywords.get('action_verbs', [])) >= 5:
-        score += 15
-    elif len(keywords.get('action_verbs', [])) >= 3:
+    if tech_count + soft_count >= 10:
+        score += 20
+    elif tech_count + soft_count >= 5:
         score += 10
     else:
+        score += 5
+        
+    # Check for NLP Entities (Organizations, Locations, Dates)
+    org_count = len(keywords.get('organizations', []))
+    date_count = len(keywords.get('dates', []))
+    
+    if org_count >= 2:
+        score += 10  # Mentioning specific companies is good
+    if date_count >= 3:
+        score += 10  # Specifying precise timelines is a strong ATS signal
+    
+    # Check for action verbs (Lemmatized via NLP)
+    verb_count = len(keywords.get('action_verbs', []))
+    if verb_count >= 5:
+        score += 10
+    elif verb_count >= 3:
         score += 5
     
     # Check for quantifiable achievements (numbers)
