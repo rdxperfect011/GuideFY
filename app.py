@@ -8,6 +8,7 @@ and NLP-based context extraction to provide personalized career recommendations.
 
 import os
 import io
+import time
 from flask import Flask, request, jsonify, send_from_directory
 from dotenv import load_dotenv
 from google import genai
@@ -55,6 +56,27 @@ AI_STATUS = {
 # Configure the Gemini client only if the API key is successfully loaded
 if GEMINI_API_KEY:
     client = genai.Client(api_key=GEMINI_API_KEY)
+
+def generate_with_retry(contents, primary_model="gemini-2.5-flash", fallback_model="gemini-flash-latest", max_retries=3, base_delay=2):
+    """Call Gemini API with primary model, fallback to secondary model on 429 errors with exponential backoff."""
+    for attempt in range(max_retries):
+        try:
+            return client.models.generate_content(model=primary_model, contents=contents)
+        except Exception as e:
+            if "429" in str(e) or "ResourceExhausted" in str(type(e).__name__):
+                print(f"⚠️ API Rate Limit (429) hit on {primary_model}. Trying fallback {fallback_model}...")
+                try:
+                    return client.models.generate_content(model=fallback_model, contents=contents)
+                except Exception as fallback_e:
+                    if "429" in str(fallback_e) or "ResourceExhausted" in str(type(fallback_e).__name__):
+                        if attempt == max_retries - 1:
+                            raise fallback_e
+                        print(f"⚠️ Both models rate limited. Retrying in {base_delay * (2 ** attempt)}s (Attempt {attempt+1}/{max_retries})...")
+                        time.sleep(base_delay * (2 ** attempt))
+                    else:
+                        raise fallback_e
+            else:
+                raise e
 
 # ==========================================
 # FLASK APPLICATION SETUP
@@ -162,51 +184,28 @@ def career():
     try:
         # Construct the complex prompt incorporating the extracted NLP data
         prompt = f"""
-You are a backend API.
-Return ONLY raw JSON.
-Give output in at least 20-30 words per field.
-Quantify the confidence_score by explicitly calculating 4 individual factors (0-100 each).
-1. Input Detail Quality: Higher if interests/goals are specific ("Python backend" > "coding").
-2. Skill Relevance: How effectively the student's current skills match the required path.
-3. Career Alignment: How logically the stated interests match the stated ultimate career goal.
-4. Feasibility: Based on their current profile, how realistic is this career target right now?
-Calculate the overall score as a weighted average.
-Do NOT default to 65 or 50. Provide highly analytical, dynamic, real percentages natively.
-Extract explicit current skills from the User Details and place them in keywords_found.
+Return ONLY raw JSON in this EXACT structure.
+Calculate confidence_score.overall as weighted average of 4 dynamic 0-100 factors.
 {{
-  "careers":[{{"name":"","justification":""}}],
-  "courses":[{{"name":"","description":""}}],
-  "next_steps":[{{"action":"","details":""}}],
+  "careers":[{{"name":"","justification":"20+ words"}}],
+  "courses":[{{"name":"","description":"20+ words"}}],
+  "next_steps":[{{"action":"","details":"20+ words"}}],
   "confidence_score":{{
     "overall": 0,
-    "breakdown": {{
-      "input_detail_quality": 0,
-      "skill_relevance": 0,
-      "career_alignment": 0,
-      "feasibility": 0
-    }},
-    "explanation": ""
+    "breakdown": {{"input_detail_quality": 0, "skill_relevance": 0, "career_alignment": 0, "feasibility": 0}},
+    "explanation": "20+ words"
   }},
   "skill_gap_analysis":{{"missing_skills":[]}},
   "keywords_found":[]
 }}
-
-User Details:
-Interests: {interests}
-Strengths: {strengths}
-Preferred Subjects: {preferred_subjects}
-Career Goal: {career_goal}
-
-NLP Profile Extraction:
-- Core Action Verbs identified: {', '.join(nlp_verbs) if nlp_verbs else 'None'}
-- Key Concept Nouns identified: {', '.join(nlp_nouns) if nlp_nouns else 'None'}
-- Distinct Behavioral Adjectives: {', '.join(nlp_adjectives) if nlp_adjectives else 'None'}
-
-Notice the NLP Extraction above that automatically determines the grammatical mapping and behavioral characteristics of this user's profile. Use this deeply structured NLP-derived context to formulate an ultra-personalized, deeper, and highly accurate recommendation regarding their ideal career pathway and their uniquely missing technical skills.
+Details: Interests: {interests}, Strengths: {strengths}, Subjects: {preferred_subjects}, Goal: {career_goal}
+NLP Verbs: {', '.join(nlp_verbs) if nlp_verbs else 'None'}
+NLP Nouns: {', '.join(nlp_nouns) if nlp_nouns else 'None'}
+NLP Adjs: {', '.join(nlp_adjectives) if nlp_adjectives else 'None'}
+Use NLP context for personalized pathway and identify missing skills.
 """
         # Call the configured Gemini model to generate content
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
+        response = generate_with_retry(
             contents=prompt
         )
 
@@ -283,11 +282,10 @@ def resume_analyze():
         # Perform deep NLP analysis for experience levels and education mapping
         nlp_analysis = extract_nlp_analysis(clean_text)
         
-        # Send the first 3000 characters to Gemini for high-level qualitative analysis 
-        prompt = RESUME_ANALYSIS_PROMPT.format(resume_text=clean_text[:3000])
+        # Send the first 2000 characters to Gemini for high-level qualitative analysis 
+        prompt = RESUME_ANALYSIS_PROMPT.format(resume_text=clean_text[:2000])
         
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
+        response = generate_with_retry(
             contents=prompt
         )
         
@@ -313,6 +311,34 @@ def resume_analyze():
     except Exception as e:
         # Handle systemic failures (e.g., API issues, critical parser crashes)
         print("❌ Resume Analysis Error:", e)
+        # Check if we have partially computed data (ATS and NLP) to return as a fallback
+        if 'ats_score' in locals() and 'nlp_analysis' in locals():
+            print("⚠️ Returning fallback resume analysis due to AI failure")
+            fallback_result = {
+                "ats_score": ats_score,
+                "ats_breakdown": ats_breakdown,
+                "keywords_found": keywords,
+                "analysis": {
+                    "strengths": ["Core concepts identified", "Experience matches some keywords"],
+                    "weaknesses": ["Could not perform deep AI analysis at this time"],
+                    "missing_keywords": ["Review the ATS score details"],
+                    "formatting_feedback": "Check standard ATS guidelines",
+                    "action_items": [
+                        {"priority": "high", "item": "Review skill matches below"}
+                    ],
+                    "overall_impression": "Basic ATS scan complete. AI feedback currently unavailable.",
+                    "ai_comparison": {
+                        "ats_score": ats_score,
+                        "skills_match": "N/A",
+                        "keyword_match": "N/A",
+                        "final_recommendation": "Use ATS breakdown as your primary guide",
+                        "reasoning": "AI generation failed, relying on deterministic ATS engine."
+                    }
+                },
+                "nlp_analysis": nlp_analysis
+            }
+            return jsonify(fallback_result), 200
+            
         return jsonify({"error": "Failed to analyze resume. Please try again."}), 500
 
 

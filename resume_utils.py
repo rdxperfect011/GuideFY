@@ -37,34 +37,26 @@ except ImportError:
 
 
 RESUME_ANALYSIS_PROMPT = """
-You are an expert resume reviewer and career coach.
-Analyze the following resume and provide detailed feedback in JSON format.
-
-Resume Content:
+Analyze the resume and provide feedback in EXACTLY this JSON format:
 {resume_text}
-
-Provide analysis in this EXACT JSON format:
 {{
-  "strengths": ["strength 1", "strength 2", "strength 3"],
-  "weaknesses": ["weakness 1", "weakness 2", "weakness 3"],
-  "missing_keywords": ["keyword 1", "keyword 2", "keyword 3"],
-  "formatting_feedback": "Brief feedback on structure and formatting",
+  "strengths": ["s1", "s2"],
+  "weaknesses": ["w1", "w2"],
+  "missing_keywords": ["k1", "k2"],
+  "formatting_feedback": "Brief structural feedback",
   "action_items": [
     {{"priority": "high", "item": "specific action"}},
-    {{"priority": "medium", "item": "specific action"}},
     {{"priority": "low", "item": "specific action"}}
   ],
-  "overall_impression": "Brief overall assessment",
+  "overall_impression": "Brief assessment",
   "ai_comparison": {{
     "ats_score": 85,
-    "skills_match": "High/Medium/Low - Brief explanation",
-    "keyword_match": "High/Medium/Low - Brief explanation",
-    "final_recommendation": "Brief recommendation differentiation",
-    "reasoning": "Brief explanation of why the AI score and evaluation might differ from a strict keyword-counting system."
+    "skills_match": "High/Medium/Low - Brief",
+    "keyword_match": "High/Medium/Low - Brief",
+    "final_recommendation": "Brief recommendation",
+    "reasoning": "Brief explanation"
   }}
 }}
-
-Be specific, actionable, and constructive.
 """
 
 
