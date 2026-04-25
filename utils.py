@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import re
 from typing import List, Dict, Any, Optional
 
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
@@ -104,7 +105,7 @@ def detect_field(text: str) -> str:
     }
 
     for field, keywords in field_keywords.items():
-        if any(k in t for k in keywords):
+        if any(re.search(rf"\b{re.escape(k)}\b", t) for k in keywords):
             return field
 
     return "generic"
