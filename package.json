@@ -1,0 +1,12 @@
+{
+  "name": "guidefy",
+  "version": "1.0.0",
+  "description": "AI-Powered Career Guidance System",
+  "private": true,
+  "scripts": {
+    "build": "echo 'No build step required for static files'"
+  },
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  }
+}

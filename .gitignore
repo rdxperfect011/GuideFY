@@ -1,3 +1,22 @@
 .env
 *.env
 */.env
+
+# Node modules
+node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
