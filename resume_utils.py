@@ -15,6 +15,13 @@ except ImportError:
 nlp_model = None
 
 def get_nlp_model():
+    """
+    Initializes and returns the spaCy NLP model.
+    Downloads the 'en_core_web_sm' model if it's not already installed.
+    
+    Returns:
+        spacy.Language: The loaded spaCy model, or None if spaCy is not installed.
+    """
     global nlp_model
     if nlp_model is None and spacy is not None:
         try:
@@ -317,7 +324,13 @@ def calculate_ats_score(text: str, keywords: Dict[str, list]) -> Dict[str, any]:
 
 def extract_nlp_analysis(text: str) -> Dict[str, any]:
     """
-    Extracts NLP-driven insights: skills, experience level, education, keywords.
+    Extracts NLP-driven insights from the resume text.
+    
+    Args:
+        text (str): The cleaned text of the resume.
+        
+    Returns:
+        dict: A dictionary containing detected skills, experience level, education, and domain keywords.
     """
     text_lower = text.lower()
     nlp = get_nlp_model()

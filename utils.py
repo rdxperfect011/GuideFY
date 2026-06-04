@@ -90,6 +90,12 @@ def extract_json(text: str) -> Dict[str, Any]:
 def detect_field(text: str) -> str:
     """
     Detects the career field based on keywords in the provided text.
+    
+    Args:
+        text (str): The text input from the user containing career interests or keywords.
+        
+    Returns:
+        str: The detected field name (e.g., 'ai_ml', 'technology') or 'generic' if no match.
     """
     t = text.lower()
 
@@ -174,6 +180,15 @@ def build_upskill(user_text: str, db: Optional[Dict[str, Any]] = None) -> Dict[s
 def normalize_output(raw: Dict[str, Any], user_text: str, db: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Ensures consistent API response format.
+    Calculates final confidence scores by blending LLM feedback with a deterministic skill-match algorithm.
+    
+    Args:
+        raw (dict): The raw JSON output parsed from the AI model.
+        user_text (str): The user's input text (interests + career goal).
+        db (dict, optional): The upskill database.
+        
+    Returns:
+        dict: A normalized and fully structured dictionary ready for the frontend response.
     """
     confidence_score = raw.get("confidence_score", {})
     if not isinstance(confidence_score, dict):
@@ -239,6 +254,10 @@ def normalize_output(raw: Dict[str, Any], user_text: str, db: Optional[Dict[str,
 def fallback_response() -> Dict[str, Any]:
     """
     Used when AI fails. Guarantees meaningful output.
+    Returns a predefined static response to ensure the application remains functional.
+    
+    Returns:
+        dict: A default recommendation response containing generic careers, courses, and next steps.
     """
     return {
         "careers": [

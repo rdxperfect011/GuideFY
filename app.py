@@ -38,7 +38,7 @@ from resume_utils import (
 # ENVIRONMENT & AI CONFIGURATION
 # ==========================================
 
-# Load environment variables from .env file (e.g., API keys)
+# Load environment variables from .env file (e.g., API keys) 
 load_dotenv()
 
 # Fetch the Gemini API key from the environment
@@ -58,7 +58,22 @@ if GEMINI_API_KEY:
     client = genai.Client(api_key=GEMINI_API_KEY)
 
 def generate_with_retry(contents, primary_model="gemini-2.5-flash", fallback_model="gemini-flash-latest", max_retries=3, base_delay=2):
-    """Call Gemini API with primary model, fallback to secondary model on 429 errors with exponential backoff."""
+    """
+    Call Gemini API with primary model, fallback to secondary model on 429 errors with exponential backoff.
+    
+    Args:
+        contents (str): The prompt or content to send to the Gemini model.
+        primary_model (str): The primary Gemini model to use. Default is "gemini-2.5-flash".
+        fallback_model (str): The fallback model to use if the primary model fails.
+        max_retries (int): The maximum number of retry attempts.
+        base_delay (int): The base delay in seconds for exponential backoff.
+        
+    Returns:
+        google.genai.types.GenerateContentResponse: The response from the Gemini API.
+        
+    Raises:
+        Exception: If both models fail after maximum retries.
+    """
     for attempt in range(max_retries):
         try:
             return client.models.generate_content(model=primary_model, contents=contents)
@@ -347,6 +362,6 @@ def resume_analyze():
 # ==========================================
 if __name__ == "__main__":
     # Start the Flask development server on port 5050 with multithreading enabled
-    print("Server running at http://127.0.0.1:5060")
+    print("Server running at http://127.0.0.1:5050")
     app.run(debug=True, port=5050, threaded=True)
 
